@@ -1,0 +1,5 @@
+# BLE AirPods Spam - Python Dependencies
+
+# PyBluez - Python Bluetooth library for Linux
+# Provides low-level access to Bluetooth HCI commands
+pybluez>=0.23

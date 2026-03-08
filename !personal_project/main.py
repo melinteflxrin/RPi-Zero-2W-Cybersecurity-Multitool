@@ -1,0 +1,253 @@
+#!/usr/bin/env python3
+"""
+BLE Attack Suite - Main Menu Interface
+
+A menu-driven application for BLE (Bluetooth Low Energy) attacks and tools.
+"""
+
+import os
+import sys
+import time
+from colors import (cprint, iprint, wprint, eprint, sprint, cinput, 
+                   RED, GREEN, CYAN, BLUE, YELLOW, MAGENTA, WHITE, 
+                   BRIGHT, RESET, LIGHT_CYAN, LIGHT_BLUE, clear, print_banner)
+
+
+# ASCII Art Logo
+LOGO = f"""{RED}{BRIGHT}
+    ____  __    ______   ___  __  __               __  
+   / __ )/ /   / ____/  /   |/ /_/ /_____ ______  / /__
+  / __  / /   / __/    / /| / __/ __/ __ `/ ___/ / //_/
+ / /_/ / /___/ /___   / ___ / /_/ /_/ /_/ / /__  / ,<   
+/_____/_____/_____/  /_/  |_\__/\__/\__,_/\___/ /_/|_|  
+                                                         
+{CYAN}         BLE Attack Suite - Educational Tool{RESET}
+"""
+
+
+class BLEAttackSuite:
+    """Main application class for BLE attack suite."""
+    
+    def __init__(self):
+        self.running = True
+    
+    def get_adapter_list(self):
+        """
+        Get list of Bluetooth adapters from user.
+        
+        Returns:
+            list: List of HCI device identifiers (e.g., ["hci0", "hci1"]).
+        """
+        try:
+            num_adapters = int(cinput("How many Bluetooth adapters?", LIGHT_CYAN) or "1")
+            adapters = [f"hci{i}" for i in range(num_adapters)]
+            iprint(f"Using adapters: {', '.join(adapters)}")
+            return adapters
+        except ValueError:
+            wprint("Invalid input, defaulting to hci0")
+            return ["hci0"]
+    
+    def action_airpods_spam(self):
+        """Execute AirPods spam attack."""
+        from ble.airpods_spam import airpods_spam
+        
+        clear()
+        print_banner("🎧 AirPods Spam Attack", MAGENTA)
+        
+        cprint("This attack broadcasts fake AirPods advertisements to nearby iOS devices.", YELLOW)
+        cprint("WARNING: Educational purposes only! Use responsibly.\n", RED)
+        
+        try:
+            # Get configuration from user
+            adapters = self.get_adapter_list()
+            
+            interval = int(cinput("Advertising interval (ms)", LIGHT_CYAN) or "200")
+            duration = int(cinput("Duration (seconds)", LIGHT_CYAN) or "60")
+            num_models = int(cinput("Number of AirPods models (1-5)", LIGHT_CYAN) or "5")
+            
+            # Validate inputs
+            num_models = max(1, min(5, num_models))
+            
+            print()
+            iprint("Starting AirPods spam attack...")
+            iprint(f"Press Ctrl+C to stop early")
+            print()
+            
+            # Execute attack
+            airpods_spam(
+                device_ids=adapters,
+                interval=interval,
+                num_models=num_models,
+                duration=duration
+            )
+            
+            sprint("Attack completed successfully!")
+            
+        except KeyboardInterrupt:
+            wprint("\nAttack stopped by user")
+        except ImportError as e:
+            eprint(f"Module import error: {e}")
+            eprint("Make sure PyBluez is installed: pip install pybluez")
+        except Exception as e:
+            eprint(f"Error during attack: {e}")
+        
+        input(f"\n{CYAN}Press Enter to continue...{RESET}")
+    
+    def display_main_menu(self):
+        """Display the main category menu."""
+        clear()
+        print(LOGO)
+        
+        cprint("╔════════════════════════════════════════════════════════╗", CYAN)
+        cprint("║                    MAIN MENU                           ║", CYAN)
+        cprint("╠════════════════════════════════════════════════════════╣", CYAN)
+        cprint("║                                                        ║", CYAN)
+        cprint("║  1) BLE Attacks  - Bluetooth Low Energy Tools         ║", CYAN)
+        cprint("║  2) About        - Project Information                ║", CYAN)
+        cprint("║  3) Exit         - Quit Application                   ║", CYAN)
+        cprint("║                                                        ║", CYAN)
+        cprint("╚════════════════════════════════════════════════════════╝", CYAN)
+        print()
+        
+        choice = cinput("Select option", LIGHT_BLUE)
+        return choice
+    
+    def display_ble_menu(self):
+        """Display the BLE attacks submenu."""
+        clear()
+        print(f"""{BLUE}{BRIGHT}
+    ____  __    ______
+   / __ )/ /   / ____/
+  / __  / /   / __/   
+ / /_/ / /___/ /___   
+/_____/_____/_____/   
+{RESET}""")
+        
+        cprint("╔════════════════════════════════════════════════════════╗", CYAN)
+        cprint("║                  BLE ATTACKS MENU                      ║", CYAN)
+        cprint("╠════════════════════════════════════════════════════════╣", CYAN)
+        cprint("║                                                        ║", CYAN)
+        cprint("║  1) airpods  - AirPods Spam Attack                    ║", LIGHT_CYAN)
+        cprint("║               (Spam iOS devices with fake AirPods)     ║", WHITE)
+        cprint("║                                                        ║", CYAN)
+        cprint("║  b) back     - Return to Main Menu                    ║", YELLOW)
+        cprint("║  e) exit     - Quit Application                       ║", RED)
+        cprint("║                                                        ║", CYAN)
+        cprint("╚════════════════════════════════════════════════════════╝", CYAN)
+        print()
+        
+        choice = cinput("Select attack", LIGHT_BLUE)
+        return choice
+    
+    def display_about(self):
+        """Display about information."""
+        clear()
+        print_banner("ℹ️  About BLE Attack Suite", BLUE)
+        
+        print(f"""{CYAN}
+    BLE Attack Suite v1.0
+    
+    A collection of Bluetooth Low Energy attack tools for
+    security research and educational purposes.
+    
+    {YELLOW}Features:{RESET}
+    • AirPods Spam - Broadcast fake Apple device advertisements
+    
+    {YELLOW}Requirements:{RESET}
+    • Linux operating system
+    • Bluetooth adapter with BLE support
+    • PyBluez library (pip install pybluez)
+    • Root/sudo privileges
+    
+    {RED}Disclaimer:{RESET}
+    This tool is for EDUCATIONAL PURPOSES ONLY.
+    Only use on devices you own or have explicit permission to test.
+    Unauthorized use may violate laws and regulations.
+    
+    {GREEN}Author: Personal Project
+    License: Educational Use Only{RESET}
+        """)
+        
+        input(f"\n{CYAN}Press Enter to continue...{RESET}")
+    
+    def handle_ble_menu(self):
+        """Handle BLE submenu navigation."""
+        while self.running:
+            choice = self.display_ble_menu()
+            choice = choice.lower().strip()
+            
+            if choice in ["1", "airpods", "asp"]:
+                self.action_airpods_spam()
+            elif choice in ["b", "back", "bb"]:
+                break
+            elif choice in ["e", "exit", "q", "quit"]:
+                self.running = False
+                break
+            else:
+                wprint(f"Invalid option: {choice}")
+                time.sleep(1)
+    
+    def run(self):
+        """Main application loop."""
+        try:
+            while self.running:
+                choice = self.display_main_menu()
+                choice = choice.lower().strip()
+                
+                if choice in ["1", "ble", "bluetooth"]:
+                    self.handle_ble_menu()
+                elif choice in ["2", "about", "info"]:
+                    self.display_about()
+                elif choice in ["3", "exit", "e", "q", "quit"]:
+                    clear()
+                    cprint("Thanks for using BLE Attack Suite!", GREEN)
+                    cprint("Stay safe and hack responsibly! 👋\n", CYAN)
+                    self.running = False
+                else:
+                    wprint(f"Invalid option: {choice}")
+                    time.sleep(1)
+        
+        except KeyboardInterrupt:
+            clear()
+            print(f"\n{YELLOW}Interrupted by user. Goodbye!{RESET}\n")
+        except Exception as e:
+            eprint(f"Unexpected error: {e}")
+            sys.exit(1)
+
+
+def check_requirements():
+    """Check if required dependencies are installed."""
+    try:
+        import bluetooth._bluetooth as bluez
+    except ImportError:
+        eprint("PyBluez library not found!")
+        eprint("Install it with: pip install pybluez")
+        eprint("\nOn Linux, you may also need:")
+        eprint("  sudo apt-get install python3-dev libbluetooth-dev")
+        return False
+    
+    # Check if running on Linux
+    if os.name != 'posix':
+        wprint("This tool is designed for Linux systems.")
+        wprint("Some features may not work on other platforms.")
+    
+    # Check if running as root
+    if os.geteuid() != 0:
+        wprint("Not running as root!")
+        wprint("Some BLE operations require sudo/root privileges.")
+        wprint("Run with: sudo python3 main.py")
+    
+    return True
+
+
+def main():
+    """Entry point for the application."""
+    if not check_requirements():
+        sys.exit(1)
+    
+    app = BLEAttackSuite()
+    app.run()
+
+
+if __name__ == '__main__':
+    main()
