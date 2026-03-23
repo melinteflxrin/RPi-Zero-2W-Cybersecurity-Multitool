@@ -1,1 +1,0 @@
-# RPi-Zero-2W-Cybersecurity-Multitool
