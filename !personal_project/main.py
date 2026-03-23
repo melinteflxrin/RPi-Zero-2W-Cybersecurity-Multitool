@@ -92,6 +92,36 @@ class BLEAttackSuite:
             eprint(f"Error during attack: {e}")
         
         input(f"\n{CYAN}Press Enter to continue...{RESET}")
+
+    def action_ad_spam(self):
+        """Execute educational AD spam scaffold."""
+        from ble.ad_spam import ad_spam
+
+        clear()
+        print_banner("AD Spam (Educational Scaffold)", MAGENTA)
+
+        cprint("This mode is a non-operational educational scaffold.", YELLOW)
+        cprint("No packet attack logic is implemented by design.\n", RED)
+
+        try:
+            adapters = self.get_adapter_list()
+
+            print()
+            iprint("Starting AD spam educational scaffold...")
+            iprint("Press Ctrl+C to stop")
+            print()
+
+            ad_spam(inf=adapters)
+            sprint("Run completed successfully!")
+
+        except KeyboardInterrupt:
+            wprint("\nRun stopped by user")
+        except ImportError as e:
+            eprint(f"Module import error: {e}")
+        except Exception as e:
+            eprint(f"Error during run: {e}")
+
+        input(f"\n{CYAN}Press Enter to continue...{RESET}")
     
     def display_main_menu(self):
         """Display the main category menu."""
@@ -129,6 +159,8 @@ class BLEAttackSuite:
         cprint("║                                                        ║", CYAN)
         cprint("║  1) airpods  - AirPods Spam Attack                    ║", LIGHT_CYAN)
         cprint("║               (Spam iOS devices with fake AirPods)     ║", WHITE)
+        cprint("║  2) adspam   - AD Spam Scaffold                       ║", LIGHT_CYAN)
+        cprint("║               (Educational placeholder, no packets)    ║", WHITE)
         cprint("║                                                        ║", CYAN)
         cprint("║  b) back     - Return to Main Menu                    ║", YELLOW)
         cprint("║  e) exit     - Quit Application                       ║", RED)
@@ -152,6 +184,7 @@ class BLEAttackSuite:
     
     {YELLOW}Features:{RESET}
     • AirPods Spam - Broadcast fake Apple device advertisements
+    • AD Spam Scaffold - Educational non-operational loop template
     
     {YELLOW}Requirements:{RESET}
     • Linux operating system
@@ -176,9 +209,11 @@ class BLEAttackSuite:
             choice = self.display_ble_menu()
             choice = choice.lower().strip()
             
-            if choice in ["1", "airpods", "asp"]:
+            if choice in ["1", "airpods"]:
                 self.action_airpods_spam()
-            elif choice in ["b", "back", "bb"]:
+            elif choice in ["2", "adspam"]:
+                self.action_ad_spam()
+            elif choice in ["b", "back"]:
                 break
             elif choice in ["e", "exit", "q", "quit"]:
                 self.running = False
