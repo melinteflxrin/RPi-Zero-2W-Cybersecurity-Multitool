@@ -94,33 +94,92 @@ class BLEAttackSuite:
         input(f"\n{CYAN}Press Enter to continue...{RESET}")
 
     def action_ad_spam(self):
-        """Execute educational AD spam scaffold."""
+        """Execute Apple advertisement spam attack."""
         from ble.ad_spam import ad_spam
-
+        
         clear()
-        print_banner("AD Spam (Educational Scaffold)", MAGENTA)
-
-        cprint("This mode is a non-operational educational scaffold.", YELLOW)
-        cprint("No packet attack logic is implemented by design.\n", RED)
-
+        print_banner("🍎 Apple Ad Spam Attack", MAGENTA)
+        
+        cprint("This attack broadcasts fake Apple device advertisements to nearby devices.", YELLOW)
+        cprint("WARNING: Educational purposes only! Use responsibly.\n", RED)
+        cprint("TIPS for better results:", CYAN)
+        cprint("  • Interval: 0.1-0.5 seconds (lower = more aggressive, higher = more stealth)", WHITE)
+        cprint("  • Duration: 30-120 seconds (longer increases chance of detection)", WHITE)
+        cprint("  • Use multiple adapters if available for better coverage\n", WHITE)
+        
         try:
+            # Get configuration from user
             adapters = self.get_adapter_list()
-
+            
+            interval = float(cinput("Advertising interval (seconds, 0.1-1.0)", LIGHT_CYAN) or "0.2")
+            duration = int(cinput("Duration (seconds)", LIGHT_CYAN) or "60")
+            
+            # Validate interval
+            interval = max(0.05, min(2.0, interval))
+            
             print()
-            iprint("Starting AD spam educational scaffold...")
-            iprint("Press Ctrl+C to stop")
+            iprint("Starting Apple ad spam attack...")
+            iprint(f"Press Ctrl+C to stop early")
             print()
-
-            ad_spam(inf=adapters)
-            sprint("Run completed successfully!")
-
+            
+            # Execute attack
+            ad_spam(
+                device_ids=adapters,
+                interval=interval,
+                duration=duration
+            )
+            
+            sprint("Attack completed successfully!")
+            
         except KeyboardInterrupt:
-            wprint("\nRun stopped by user")
+            wprint("\nAttack stopped by user")
         except ImportError as e:
             eprint(f"Module import error: {e}")
+            eprint("Make sure PyBluez is installed: pip install pybluez")
         except Exception as e:
-            eprint(f"Error during run: {e}")
+            eprint(f"Error during attack: {e}")
+        
+        input(f"\n{CYAN}Press Enter to continue...{RESET}")
 
+    def action_android_spam(self):
+        """Execute Android spam attack."""
+        from ble.android_spam import android_spam
+        
+        clear()
+        print_banner("📱 Android Spam Attack", MAGENTA)
+        
+        cprint("This attack broadcasts fake Android device advertisements to nearby devices.", YELLOW)
+        cprint("WARNING: Educational purposes only! Use responsibly.\n", RED)
+        
+        try:
+            # Get configuration from user
+            adapters = self.get_adapter_list()
+            
+            interval = int(cinput("Advertising interval (seconds)", LIGHT_CYAN) or "1")
+            duration = int(cinput("Duration (seconds)", LIGHT_CYAN) or "60")
+            
+            print()
+            iprint("Starting Android spam attack...")
+            iprint(f"Press Ctrl+C to stop early")
+            print()
+            
+            # Execute attack
+            android_spam(
+                device_ids=adapters,
+                interval=interval,
+                duration=duration
+            )
+            
+            sprint("Attack completed successfully!")
+            
+        except KeyboardInterrupt:
+            wprint("\nAttack stopped by user")
+        except ImportError as e:
+            eprint(f"Module import error: {e}")
+            eprint("Make sure PyBluez is installed: pip install pybluez")
+        except Exception as e:
+            eprint(f"Error during attack: {e}")
+        
         input(f"\n{CYAN}Press Enter to continue...{RESET}")
     
     def display_main_menu(self):
@@ -159,8 +218,10 @@ class BLEAttackSuite:
         cprint("║                                                        ║", CYAN)
         cprint("║  1) airpods  - AirPods Spam Attack                    ║", LIGHT_CYAN)
         cprint("║               (Spam iOS devices with fake AirPods)     ║", WHITE)
-        cprint("║  2) adspam   - AD Spam Scaffold                       ║", LIGHT_CYAN)
-        cprint("║               (Educational placeholder, no packets)    ║", WHITE)
+        cprint("║  2) adseed   - Apple Ad Spam Attack                   ║", LIGHT_CYAN)
+        cprint("║               (Spam Apple devices)                     ║", WHITE)
+        cprint("║  3) android  - Android Spam Attack                    ║", LIGHT_CYAN)
+        cprint("║               (Spam Android devices)                   ║", WHITE)
         cprint("║                                                        ║", CYAN)
         cprint("║  b) back     - Return to Main Menu                    ║", YELLOW)
         cprint("║  e) exit     - Quit Application                       ║", RED)
@@ -211,8 +272,10 @@ class BLEAttackSuite:
             
             if choice in ["1", "airpods"]:
                 self.action_airpods_spam()
-            elif choice in ["2", "adspam"]:
+            elif choice in ["2", "adseed", "adspam"]:
                 self.action_ad_spam()
+            elif choice in ["3", "android"]:
+                self.action_android_spam()
             elif choice in ["b", "back"]:
                 break
             elif choice in ["e", "exit", "q", "quit"]:
