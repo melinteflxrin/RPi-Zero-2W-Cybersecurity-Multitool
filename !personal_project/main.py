@@ -170,6 +170,55 @@ class AttackSuite:
         
         input(f"\n{CYAN}Press Enter to continue...{RESET}")
     
+    def action_bluefog(self):
+        """Execute BlueFog adapter name spoofing attack."""
+        from bt.bluefog_attack import BlueFogAttack
+        
+        clear()
+        print_banner("🌫️  BlueFog Adapter Spoofing Attack", MAGENTA)
+        
+        cprint("This attack continuously changes Bluetooth adapter names to deceptive values.", YELLOW)
+        cprint("It creates a 'fog' of fake Bluetooth devices by rapid name rotation.", YELLOW)
+        cprint("WARNING: Educational purposes only! Use responsibly.\n", RED)
+        cprint("TIPS for better results:", CYAN)
+        cprint("  • Interval: 1-5 seconds (1 = rapid changes, 5 = slower rotation)", WHITE)
+        cprint("  • Use multiple adapters if available for doubled effect", WHITE)
+        cprint("  • Nearby devices will see your adapter appear as many devices\n", WHITE)
+        
+        try:
+            # Get configuration from user
+            adapters = self.get_adapter_list()
+            adapter_indices = [int(a.replace("hci", "")) for a in adapters]
+            
+            interval = int(cinput("Name rotation interval (seconds, 1-30)", LIGHT_CYAN) or "5")
+            interval = max(1, min(30, interval))
+            
+            print()
+            cprint(f"Configuration:")
+            cprint(f"  Adapters: {', '.join(adapters)}")
+            cprint(f"  Rotation interval: {interval}s")
+            cprint(f"  Name pool size: 50+\n")
+            
+            iprint("Starting BlueFog attack...")
+            iprint(f"Press Ctrl+C to stop", YELLOW)
+            print()
+            
+            # Execute attack
+            attack = BlueFogAttack(adapter_indices, interval=interval)
+            attack.start()
+            
+            sprint("Attack completed successfully!")
+            
+        except KeyboardInterrupt:
+            wprint("\nAttack stopped by user")
+        except ImportError as e:
+            eprint(f"Module import error: {e}")
+            eprint("Make sure BlueFog module is properly installed")
+        except Exception as e:
+            eprint(f"Error during attack: {e}")
+        
+        input(f"\n{CYAN}Press Enter to continue...{RESET}")
+    
     def display_main_menu(self):
         """Display the main category menu."""
         clear()
@@ -202,6 +251,8 @@ class AttackSuite:
         cprint("║               (Spam Apple devices)                     ║", WHITE)
         cprint("║  3) android  - Android Spam Attack                    ║", LIGHT_CYAN)
         cprint("║               (Spam Android devices)                   ║", WHITE)
+        cprint("║  4) bluefog  - BlueFog Adapter Spoofing               ║", LIGHT_CYAN)
+        cprint("║               (Rotate adapter names - create fog)      ║", WHITE)
         cprint("║                                                        ║", CYAN)
         cprint("║  b) back     - Return to Main Menu                    ║", YELLOW)
         cprint("║  e) exit     - Quit Application                       ║", RED)
@@ -256,6 +307,8 @@ class AttackSuite:
                 self.action_ad_spam()
             elif choice in ["3", "android"]:
                 self.action_android_spam()
+            elif choice in ["4", "bluefog", "fog"]:
+                self.action_bluefog()
             elif choice in ["b", "back"]:
                 break
             elif choice in ["e", "exit", "q", "quit"]:
