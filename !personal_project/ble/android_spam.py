@@ -23,7 +23,7 @@ from errno import EALREADY
 import threading
 import random
 import bluetooth._bluetooth as bluez
-from colors import RED, GREEN, BLUE, CYAN, WHITE, YELLOW, RESET, BRIGHT
+from ui import RED, GREEN, BLUE, CYAN, WHITE, YELLOW, RESET, BRIGHT
 
 # Android manufacturer constants
 MANUFACTURERS = {

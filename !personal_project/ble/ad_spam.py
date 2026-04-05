@@ -11,7 +11,7 @@ WARNING: This is for educational purposes only. Use responsibly and only on devi
 you own or have permission to test.
 """
 
-from colors import RED, GREEN, BLUE, CYAN, WHITE, YELLOW, RESET, BRIGHT
+from ui import RED, GREEN, BLUE, CYAN, WHITE, YELLOW, RESET, BRIGHT
 import time
 import os
 import struct

@@ -8,7 +8,7 @@ A menu-driven application for BLE, Bluetooth, and WiFi attacks and security rese
 import os
 import sys
 import time
-from colors import (cprint, iprint, wprint, eprint, sprint, cinput, 
+from ui import (cprint, iprint, wprint, eprint, sprint, cinput, 
                    RED, GREEN, CYAN, BLUE, YELLOW, MAGENTA, WHITE, 
                    BRIGHT, RESET, LIGHT_CYAN, LIGHT_BLUE, clear, print_banner)
 
