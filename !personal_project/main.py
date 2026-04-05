@@ -170,12 +170,12 @@ class AttackSuite:
         
         input(f"\n{CYAN}Press Enter to continue...{RESET}")
     
-    def action_bluefog(self):
-        """Execute BlueFog adapter name spoofing attack."""
-        from bt.bluefog_attack import BlueFogAttack
+    def action_name_spoof(self):
+        """Execute NameSpoof adapter name spoofing attack."""
+        from ble.name_spoofer import NameSpoofAttack
         
         clear()
-        print_banner("🌫️  BlueFog Adapter Spoofing Attack", MAGENTA)
+        print_banner("🎭 NameSpoof Adapter Spoofing Attack", MAGENTA)
         
         cprint("This attack continuously changes Bluetooth adapter names to deceptive values.", YELLOW)
         cprint("It creates a 'fog' of fake Bluetooth devices by rapid name rotation.", YELLOW)
@@ -199,12 +199,12 @@ class AttackSuite:
             cprint(f"  Rotation interval: {interval}s")
             cprint(f"  Name pool size: 50+\n")
             
-            iprint("Starting BlueFog attack...")
+            iprint("Starting NameSpoof attack...")
             iprint(f"Press Ctrl+C to stop", YELLOW)
             print()
             
             # Execute attack
-            attack = BlueFogAttack(adapter_indices, interval=interval)
+            attack = NameSpoofAttack(adapter_indices, interval=interval)
             attack.start()
             
             sprint("Attack completed successfully!")
@@ -213,7 +213,7 @@ class AttackSuite:
             wprint("\nAttack stopped by user")
         except ImportError as e:
             eprint(f"Module import error: {e}")
-            eprint("Make sure BlueFog module is properly installed")
+            eprint("Make sure NameSpoof module is properly installed")
         except Exception as e:
             eprint(f"Error during attack: {e}")
         
@@ -251,7 +251,7 @@ class AttackSuite:
         cprint("║               (Spam Apple devices)                     ║", WHITE)
         cprint("║  3) android  - Android Spam Attack                    ║", LIGHT_CYAN)
         cprint("║               (Spam Android devices)                   ║", WHITE)
-        cprint("║  4) bluefog  - BlueFog Adapter Spoofing               ║", LIGHT_CYAN)
+        cprint("║  4) namespoof- NameSpoof Adapter Spoofing            ║", LIGHT_CYAN)
         cprint("║               (Rotate adapter names - create fog)      ║", WHITE)
         cprint("║                                                        ║", CYAN)
         cprint("║  b) back     - Return to Main Menu                    ║", YELLOW)
@@ -307,8 +307,8 @@ class AttackSuite:
                 self.action_ad_spam()
             elif choice in ["3", "android"]:
                 self.action_android_spam()
-            elif choice in ["4", "bluefog", "fog"]:
-                self.action_bluefog()
+            elif choice in ["4", "namespoof", "spoof"]:
+                self.action_name_spoof()
             elif choice in ["b", "back"]:
                 break
             elif choice in ["e", "exit", "q", "quit"]:
