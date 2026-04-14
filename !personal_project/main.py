@@ -219,6 +219,66 @@ class AttackSuite:
         
         input(f"\n{CYAN}Press Enter to continue...{RESET}")
     
+    def action_beacon_broadcast(self):
+        """Execute Beacon Broadcast WiFi attack."""
+        from wifi.beacon_broadcast import BeaconBroadcaster
+        
+        clear()
+        print_banner("📡 Beacon Broadcast Attack", MAGENTA)
+        
+        cprint("This attack broadcasts fake WiFi networks with customizable parameters.", YELLOW)
+        cprint("WARNING: Educational purposes only! Use responsibly.\n", RED)
+        
+        try:
+            # Get WiFi interface from user
+            interface = cinput("Enter WiFi interface name (e.g., wlan1mon)", LIGHT_CYAN) or "wlan1mon"
+            
+            iprint(f"Using interface: {interface}")
+            
+            # Create and run attack
+            broadcaster = BeaconBroadcaster(interface)
+            broadcaster.run_interactive()
+            
+            sprint("Attack module completed!")
+            
+        except ImportError as e:
+            eprint(f"Module import error: {e}")
+            eprint("Make sure WiFi module is properly installed")
+        except Exception as e:
+            eprint(f"Error during attack: {e}")
+        
+        input(f"\n{CYAN}Press Enter to continue...{RESET}")
+    
+    def action_ap_network_flood(self):
+        """Execute AP Network Flood WiFi attack."""
+        from wifi.ap_network_flood import APNetworkFlooder
+        
+        clear()
+        print_banner("🌊 AP Network Flood Attack", MAGENTA)
+        
+        cprint("This attack broadcasts multiple fake WiFi networks from a network list.", YELLOW)
+        cprint("WARNING: Educational purposes only! Use responsibly.\n", RED)
+        
+        try:
+            # Get WiFi interface from user
+            interface = cinput("Enter WiFi interface name (e.g., wlan1mon)", LIGHT_CYAN) or "wlan1mon"
+            
+            iprint(f"Using interface: {interface}")
+            
+            # Create and run attack
+            flooder = APNetworkFlooder(interface)
+            flooder.run_interactive()
+            
+            sprint("Attack module completed!")
+            
+        except ImportError as e:
+            eprint(f"Module import error: {e}")
+            eprint("Make sure WiFi module is properly installed")
+        except Exception as e:
+            eprint(f"Error during attack: {e}")
+        
+        input(f"\n{CYAN}Press Enter to continue...{RESET}")
+    
     def display_main_menu(self):
         """Display the main category menu."""
         clear()
@@ -228,8 +288,9 @@ class AttackSuite:
         cprint("╠════════════════════════════════════════════════════════╣", CYAN)
         cprint("║                                                        ║", CYAN)
         cprint("║  1) BLE Attacks  - Bluetooth Low Energy Tools         ║", CYAN)
-        cprint("║  2) About        - Project Information                ║", CYAN)
-        cprint("║  3) Exit         - Quit Application                   ║", CYAN)
+        cprint("║  2) WiFi Attacks - WiFi Network Spoofing Tools        ║", CYAN)
+        cprint("║  3) About        - Project Information                ║", CYAN)
+        cprint("║  4) Exit         - Quit Application                   ║", CYAN)
         cprint("║                                                        ║", CYAN)
         cprint("╚════════════════════════════════════════════════════════╝", CYAN)
         print()
@@ -266,27 +327,29 @@ class AttackSuite:
     def display_about(self):
         """Display about information."""
         clear()
-        print_banner("ℹ️  About BLE Attack Suite", BLUE)
+        print_banner("ℹ️  About Attack Suite", BLUE)
         
         print(f"""{CYAN}
-    BLE Attack Suite v1.0
+    Attack Suite v2.0
     
-    A collection of Bluetooth Low Energy attack tools for
+    A collection of Bluetooth and WiFi attack tools for
     security research and educational purposes.
     
     {YELLOW}Features:{RESET}
-    • AirPods Spam - Broadcast fake Apple device advertisements
-    • AD Spam Scaffold - Educational non-operational loop template
+    • BLE Attacks - AirPods spam, Android spam, Name spoofing
+    • WiFi Attacks - Beacon broadcast, AP network flooding
     
     {YELLOW}Requirements:{RESET}
     • Linux operating system
     • Bluetooth adapter with BLE support
-    • PyBluez library (pip install pybluez)
+    • WiFi adapter in monitor mode (for WiFi attacks)
+    • PyBluez library
+    • mdk4 tool (for WiFi attacks)
     • Root/sudo privileges
     
     {RED}Disclaimer:{RESET}
     This tool is for EDUCATIONAL PURPOSES ONLY.
-    Only use on devices you own or have explicit permission to test.
+    Only use on devices and networks you own or have explicit permission to test.
     Unauthorized use may violate laws and regulations.
     
     {GREEN}Author: Personal Project
@@ -318,6 +381,47 @@ class AttackSuite:
                 wprint(f"Invalid option: {choice}")
                 time.sleep(1)
     
+    def display_wifi_menu(self):
+        """Display the WiFi attacks submenu."""
+        clear()
+        
+        cprint("╔════════════════════════════════════════════════════════╗", CYAN)
+        cprint("║                 WIFI ATTACKS MENU                      ║", CYAN)
+        cprint("╠════════════════════════════════════════════════════════╣", CYAN)
+        cprint("║                                                        ║", CYAN)
+        cprint("║  1) beacon   - Beacon Broadcast Attack                ║", LIGHT_CYAN)
+        cprint("║               (Broadcast fake WiFi networks)           ║", WHITE)
+        cprint("║  2) flood    - AP Network Flood Attack                ║", LIGHT_CYAN)
+        cprint("║               (Mass network broadcasting)              ║", WHITE)
+        cprint("║                                                        ║", CYAN)
+        cprint("║  b) back     - Return to Main Menu                    ║", YELLOW)
+        cprint("║  e) exit     - Quit Application                       ║", RED)
+        cprint("║                                                        ║", CYAN)
+        cprint("╚════════════════════════════════════════════════════════╝", CYAN)
+        print()
+        
+        choice = cinput("Select attack", LIGHT_BLUE)
+        return choice
+    
+    def handle_wifi_menu(self):
+        """Handle WiFi submenu navigation."""
+        while self.running:
+            choice = self.display_wifi_menu()
+            choice = choice.lower().strip()
+            
+            if choice in ["1", "beacon"]:
+                self.action_beacon_broadcast()
+            elif choice in ["2", "flood"]:
+                self.action_ap_network_flood()
+            elif choice in ["b", "back"]:
+                break
+            elif choice in ["e", "exit", "q", "quit"]:
+                self.running = False
+                break
+            else:
+                wprint(f"Invalid option: {choice}")
+                time.sleep(1)
+    
     def run(self):
         """Main application loop."""
         try:
@@ -327,11 +431,13 @@ class AttackSuite:
                 
                 if choice in ["1", "ble", "bluetooth"]:
                     self.handle_ble_menu()
-                elif choice in ["2", "about", "info"]:
+                elif choice in ["2", "wifi"]:
+                    self.handle_wifi_menu()
+                elif choice in ["3", "about", "info"]:
                     self.display_about()
-                elif choice in ["3", "exit", "e", "q", "quit"]:
+                elif choice in ["4", "exit", "e", "q", "quit"]:
                     clear()
-                    cprint("Thanks for using BLE Attack Suite!", GREEN)
+                    cprint("Thanks for using Attack Suite!", GREEN)
                     cprint("Stay safe and hack responsibly! 👋\n", CYAN)
                     self.running = False
                 else:

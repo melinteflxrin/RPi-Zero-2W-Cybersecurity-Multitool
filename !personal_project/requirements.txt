@@ -12,15 +12,11 @@
 # sudo apt-get install -y python3 python3-pip python3-dev
 # sudo apt-get install -y git curl wget
 # sudo apt-get install -y bluez bluez-tools
-# sudo apt-get install -y python3-bluez libbluetooth-dev
+# sudo apt-get install -y python3-bluez python3-dbus libbluetooth-dev
 # sudo apt-get install -y aircrack-ng mdk4 wifite
 # sudo apt-get install -y dnsmasq hostapd iptables
 #
-# STEP 2: Python Packages (run in project directory)
-# ====================================================
-# pip3 install --break-system-packages -r requirements.txt
-#
-# STEP 3: Initialize Bluetooth Adapter
+# STEP 2: Initialize Bluetooth Adapter
 # =================================================
 # sudo hciconfig hci0 reset           # reset adapter
 # hciconfig hci0                      # verify it came back up
@@ -28,6 +24,3 @@
 # sudo btmgmt connectable on          # enable connectable mode
 # sudo btmgmt discov on               # enable discoverable mode
 # sudo btmgmt pairable on             # enable pairing mode
-
-# Core Dependencies
-dbus-python             # D-Bus interface for BlueZ Bluetooth daemon
