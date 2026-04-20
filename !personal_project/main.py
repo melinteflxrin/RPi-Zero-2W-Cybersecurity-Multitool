@@ -279,6 +279,38 @@ class AttackSuite:
         
         input(f"\n{CYAN}Press Enter to continue...{RESET}")
     
+    def action_network_scanner(self):
+        """Execute Network Scanner WiFi reconnaissance tool."""
+        from wifi.network_scanner import NetworkScanner
+        
+        clear()
+        print_banner("📡 Live Network Scanner", MAGENTA)
+        
+        cprint("This tool scans and displays all nearby WiFi networks in real-time.", YELLOW)
+        cprint("Shows network details: SSID, signal strength, encryption, connected clients.\n", YELLOW)
+        cprint("Requirements: WiFi adapter in monitor mode", CYAN)
+        cprint("WARNING: Educational purposes only! Use responsibly.\n", RED)
+        
+        try:
+            # Get WiFi interface from user
+            interface = cinput("Enter WiFi interface name (e.g., wlan1mon)", LIGHT_CYAN) or "wlan1mon"
+            
+            iprint(f"Using interface: {interface}\n")
+            
+            # Create and run scanner
+            scanner = NetworkScanner(interface)
+            scanner.run()
+            
+            sprint("Network scanner completed!")
+            
+        except ImportError as e:
+            eprint(f"Module import error: {e}")
+            eprint("Make sure WiFi module is properly installed")
+        except Exception as e:
+            eprint(f"Error during scanning: {e}")
+        
+        input(f"\n{CYAN}Press Enter to continue...{RESET}")
+    
     def display_main_menu(self):
         """Display the main category menu."""
         clear()
@@ -393,6 +425,8 @@ class AttackSuite:
         cprint("║               (Broadcast fake WiFi networks)           ║", WHITE)
         cprint("║  2) flood    - AP Network Flood Attack                ║", LIGHT_CYAN)
         cprint("║               (Mass network broadcasting)              ║", WHITE)
+        cprint("║  3) scanner  - Live Network Scanner                   ║", LIGHT_CYAN)
+        cprint("║               (Discover and monitor nearby networks)   ║", WHITE)
         cprint("║                                                        ║", CYAN)
         cprint("║  b) back     - Return to Main Menu                    ║", YELLOW)
         cprint("║  e) exit     - Quit Application                       ║", RED)
@@ -413,6 +447,8 @@ class AttackSuite:
                 self.action_beacon_broadcast()
             elif choice in ["2", "flood"]:
                 self.action_ap_network_flood()
+            elif choice in ["3", "scanner", "scan"]:
+                self.action_network_scanner()
             elif choice in ["b", "back"]:
                 break
             elif choice in ["e", "exit", "q", "quit"]:
