@@ -391,6 +391,44 @@ class AttackSuite:
         
         input(f"\n{CYAN}Press Enter to continue...{RESET}")
     
+    def action_packet_capture(self):
+        """Execute Packet Capture WiFi analysis tool."""
+        from wifi.packet_capture import PacketCapture
+        
+        clear()
+        print_banner("Packet Capture Tool", MAGENTA)
+        
+        cprint("This tool captures WiFi network traffic to .cap files for analysis.", YELLOW)
+        cprint("Captured files can be analyzed with Wireshark or other tools.\n", YELLOW)
+        cprint("Requirements: WiFi adapter in monitor mode", CYAN)
+        cprint("WARNING: Educational purposes only! Use responsibly.\n", RED)
+        cprint("TIPS:", CYAN)
+        cprint("  • Use for network forensics and traffic analysis", WHITE)
+        cprint("  • Compatible with Wireshark for detailed packet inspection", WHITE)
+        cprint("  • Great for learning WiFi protocols\n", WHITE)
+        
+        try:
+            # Get WiFi interface from user
+            interface = cinput("Enter WiFi interface name (e.g., wlan1)", LIGHT_CYAN) or "wlan1mon"
+            
+            iprint(f"Using interface: {interface}")
+            
+            # Create and run packet capture
+            capture = PacketCapture(interface)
+            capture.run_interactive()
+            
+            sprint("Packet capture module completed!")
+            
+        except KeyboardInterrupt:
+            wprint("\nCapture stopped by user")
+        except ImportError as e:
+            eprint(f"Module import error: {e}")
+            eprint("Make sure WiFi module is properly installed")
+        except Exception as e:
+            eprint(f"Error during capture: {e}")
+        
+        input(f"\n{CYAN}Press Enter to continue...{RESET}")
+    
     def display_main_menu(self):
         """Display the main category menu."""
         clear()
@@ -511,6 +549,8 @@ class AttackSuite:
         cprint("║               (Disconnect WiFi clients from networks)  ║", WHITE)
         cprint("║  5) bruteforce- ESSID Bruteforce Attack                ║", LIGHT_CYAN)
         cprint("║               (Discover hidden networks)               ║", WHITE)
+        cprint("║  6) capture  - Packet Capture Tool                     ║", LIGHT_CYAN)
+        cprint("║               (Record WiFi traffic to .cap files)      ║", WHITE)
         cprint("║                                                        ║", CYAN)
         cprint("║  b) back     - Return to Main Menu                     ║", YELLOW)
         cprint("║  e) exit     - Quit Application                        ║", RED)
@@ -537,6 +577,8 @@ class AttackSuite:
                 self.action_deauth_attack()
             elif choice in ["5", "bruteforce", "essid"]:
                 self.action_essid_bruteforce()
+            elif choice in ["6", "capture", "wificap"]:
+                self.action_packet_capture()
             elif choice in ["b", "back"]:
                 break
             elif choice in ["e", "exit", "q", "quit"]:
