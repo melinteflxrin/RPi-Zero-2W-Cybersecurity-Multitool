@@ -40,7 +40,7 @@ class AttackSuite:
         from ble.airpods_spam import airpods_spam
         
         clear()
-        print_banner("🎧 AirPods Spam Attack", MAGENTA)
+        print_banner("AirPods Spam Attack", MAGENTA)
         
         cprint("This attack broadcasts fake AirPods advertisements to nearby iOS devices.", YELLOW)
         cprint("WARNING: Educational purposes only! Use responsibly.\n", RED)
@@ -86,7 +86,7 @@ class AttackSuite:
         from ble.ad_spam import ad_spam
         
         clear()
-        print_banner("🍎 Apple Ad Spam Attack", MAGENTA)
+        print_banner("Apple Ad Spam Attack", MAGENTA)
         
         cprint("This attack broadcasts fake Apple device advertisements to nearby devices.", YELLOW)
         cprint("WARNING: Educational purposes only! Use responsibly.\n", RED)
@@ -134,7 +134,7 @@ class AttackSuite:
         from ble.android_spam import android_spam
         
         clear()
-        print_banner("📱 Android Spam Attack", MAGENTA)
+        print_banner("Android Spam Attack", MAGENTA)
         
         cprint("This attack broadcasts fake Android device advertisements to nearby devices.", YELLOW)
         cprint("WARNING: Educational purposes only! Use responsibly.\n", RED)
@@ -175,7 +175,7 @@ class AttackSuite:
         from ble.name_spoofer import NameSpoofAttack
         
         clear()
-        print_banner("🎭 NameSpoof Adapter Spoofing Attack", MAGENTA)
+        print_banner("NameSpoof Adapter Spoofing Attack", MAGENTA)
         
         cprint("This attack continuously changes Bluetooth adapter names to deceptive values.", YELLOW)
         cprint("It creates a 'fog' of fake Bluetooth devices by rapid name rotation.", YELLOW)
@@ -224,14 +224,14 @@ class AttackSuite:
         from wifi.beacon_broadcast import BeaconBroadcaster
         
         clear()
-        print_banner("📡 Beacon Broadcast Attack", MAGENTA)
+        print_banner("Beacon Broadcast Attack", MAGENTA)
         
         cprint("This attack broadcasts fake WiFi networks with customizable parameters.", YELLOW)
         cprint("WARNING: Educational purposes only! Use responsibly.\n", RED)
         
         try:
             # Get WiFi interface from user
-            interface = cinput("Enter WiFi interface name (e.g., wlan1mon)", LIGHT_CYAN) or "wlan1mon"
+            interface = cinput("Enter WiFi interface name (e.g., wlan1)", LIGHT_CYAN) or "wlan1mon"
             
             iprint(f"Using interface: {interface}")
             
@@ -241,6 +241,8 @@ class AttackSuite:
             
             sprint("Attack module completed!")
             
+        except KeyboardInterrupt:
+            wprint("\nAttack stopped by user")
         except ImportError as e:
             eprint(f"Module import error: {e}")
             eprint("Make sure WiFi module is properly installed")
@@ -254,14 +256,14 @@ class AttackSuite:
         from wifi.ap_network_flood import APNetworkFlooder
         
         clear()
-        print_banner("🌊 AP Network Flood Attack", MAGENTA)
+        print_banner("AP Network Flood Attack", MAGENTA)
         
         cprint("This attack broadcasts multiple fake WiFi networks from a network list.", YELLOW)
         cprint("WARNING: Educational purposes only! Use responsibly.\n", RED)
         
         try:
             # Get WiFi interface from user
-            interface = cinput("Enter WiFi interface name (e.g., wlan1mon)", LIGHT_CYAN) or "wlan1mon"
+            interface = cinput("Enter WiFi interface name (e.g., wlan1)", LIGHT_CYAN) or "wlan1mon"
             
             iprint(f"Using interface: {interface}")
             
@@ -271,6 +273,8 @@ class AttackSuite:
             
             sprint("Attack module completed!")
             
+        except KeyboardInterrupt:
+            wprint("\nAttack stopped by user")
         except ImportError as e:
             eprint(f"Module import error: {e}")
             eprint("Make sure WiFi module is properly installed")
@@ -284,7 +288,7 @@ class AttackSuite:
         from wifi.network_scanner import NetworkScanner
         
         clear()
-        print_banner("📡 Live Network Scanner", MAGENTA)
+        print_banner("Live Network Scanner", MAGENTA)
         
         cprint("This tool scans and displays all nearby WiFi networks in real-time.", YELLOW)
         cprint("Shows network details: SSID, signal strength, encryption, connected clients.\n", YELLOW)
@@ -293,7 +297,7 @@ class AttackSuite:
         
         try:
             # Get WiFi interface from user
-            interface = cinput("Enter WiFi interface name (e.g., wlan1mon)", LIGHT_CYAN) or "wlan1mon"
+            interface = cinput("Enter WiFi interface name (e.g., wlan1)", LIGHT_CYAN) or "wlan1mon"
             
             iprint(f"Using interface: {interface}\n")
             
@@ -303,11 +307,50 @@ class AttackSuite:
             
             sprint("Network scanner completed!")
             
+        except KeyboardInterrupt:
+            wprint("\nScan stopped by user")
         except ImportError as e:
             eprint(f"Module import error: {e}")
             eprint("Make sure WiFi module is properly installed")
         except Exception as e:
             eprint(f"Error during scanning: {e}")
+        
+        input(f"\n{CYAN}Press Enter to continue...{RESET}")
+    
+    def action_deauth_attack(self):
+        """Execute Deauthentication WiFi attack."""
+        from wifi.deauth_attack import DeauthAttack
+        
+        clear()
+        print_banner("Deauthentication Attack", MAGENTA)
+        
+        cprint("This attack sends deauthentication frames to disconnect WiFi clients.", YELLOW)
+        cprint("Can target entire networks, routers, or specific devices.\n", YELLOW)
+        cprint("Requirements: WiFi adapter in monitor mode", CYAN)
+        cprint("WARNING: Educational purposes only! Use responsibly.\n", RED)
+        cprint("TIPS:", CYAN)
+        cprint("  • Run network scanner first to find target BSSIDs and devices", WHITE)
+        cprint("  • ESSID = network name, BSSID = router MAC, Device = client MAC\n", WHITE)
+        
+        try:
+            # Get WiFi interface from user
+            interface = cinput("Enter WiFi interface name (e.g., wlan1)", LIGHT_CYAN) or "wlan1mon"
+            
+            iprint(f"Using interface: {interface}")
+            
+            # Create and run attack
+            deauth = DeauthAttack(interface)
+            deauth.run_interactive()
+            
+            sprint("Deauthentication module completed!")
+            
+        except KeyboardInterrupt:
+            wprint("\nAttack stopped by user")
+        except ImportError as e:
+            eprint(f"Module import error: {e}")
+            eprint("Make sure WiFi module is properly installed")
+        except Exception as e:
+            eprint(f"Error during attack: {e}")
         
         input(f"\n{CYAN}Press Enter to continue...{RESET}")
     
@@ -319,10 +362,10 @@ class AttackSuite:
         cprint("║                    MAIN MENU                           ║", CYAN)
         cprint("╠════════════════════════════════════════════════════════╣", CYAN)
         cprint("║                                                        ║", CYAN)
-        cprint("║  1) BLE Attacks  - Bluetooth Low Energy Tools         ║", CYAN)
-        cprint("║  2) WiFi Attacks - WiFi Network Spoofing Tools        ║", CYAN)
-        cprint("║  3) About        - Project Information                ║", CYAN)
-        cprint("║  4) Exit         - Quit Application                   ║", CYAN)
+        cprint("║  1) BLE Attacks  - Bluetooth Low Energy Tools          ║", CYAN)
+        cprint("║  2) WiFi Attacks - WiFi Network Spoofing Tools         ║", CYAN)
+        cprint("║  3) About        - Project Information                 ║", CYAN)
+        cprint("║  4) Exit         - Quit Application                    ║", CYAN)
         cprint("║                                                        ║", CYAN)
         cprint("╚════════════════════════════════════════════════════════╝", CYAN)
         print()
@@ -338,17 +381,17 @@ class AttackSuite:
         cprint("║                  BLE ATTACKS MENU                      ║", CYAN)
         cprint("╠════════════════════════════════════════════════════════╣", CYAN)
         cprint("║                                                        ║", CYAN)
-        cprint("║  1) airpods  - AirPods Spam Attack                    ║", LIGHT_CYAN)
+        cprint("║  1) airpods  - AirPods Spam Attack                     ║", LIGHT_CYAN)
         cprint("║               (Spam iOS devices with fake AirPods)     ║", WHITE)
-        cprint("║  2) adseed   - Apple Ad Spam Attack                   ║", LIGHT_CYAN)
+        cprint("║  2) adseed   - Apple Ad Spam Attack                    ║", LIGHT_CYAN)
         cprint("║               (Spam Apple devices)                     ║", WHITE)
-        cprint("║  3) android  - Android Spam Attack                    ║", LIGHT_CYAN)
+        cprint("║  3) android  - Android Spam Attack                     ║", LIGHT_CYAN)
         cprint("║               (Spam Android devices)                   ║", WHITE)
-        cprint("║  4) namespoof- NameSpoof Adapter Spoofing            ║", LIGHT_CYAN)
-        cprint("║               (Rotate adapter names - create fog)      ║", WHITE)
+        cprint("║  4) namespoof- NameSpoof Adapter Spoofing              ║", LIGHT_CYAN)
+        cprint("║               (Rotate adapter names)                   ║", WHITE)
         cprint("║                                                        ║", CYAN)
-        cprint("║  b) back     - Return to Main Menu                    ║", YELLOW)
-        cprint("║  e) exit     - Quit Application                       ║", RED)
+        cprint("║  b) back     - Return to Main Menu                     ║", YELLOW)
+        cprint("║  e) exit     - Quit Application                        ║", RED)
         cprint("║                                                        ║", CYAN)
         cprint("╚════════════════════════════════════════════════════════╝", CYAN)
         print()
@@ -359,7 +402,7 @@ class AttackSuite:
     def display_about(self):
         """Display about information."""
         clear()
-        print_banner("ℹ️  About Attack Suite", BLUE)
+        print_banner("About Attack Suite", BLUE)
         
         print(f"""{CYAN}
     Attack Suite v2.0
@@ -421,15 +464,17 @@ class AttackSuite:
         cprint("║                 WIFI ATTACKS MENU                      ║", CYAN)
         cprint("╠════════════════════════════════════════════════════════╣", CYAN)
         cprint("║                                                        ║", CYAN)
-        cprint("║  1) beacon   - Beacon Broadcast Attack                ║", LIGHT_CYAN)
+        cprint("║  1) beacon   - Beacon Broadcast Attack                 ║", LIGHT_CYAN)
         cprint("║               (Broadcast fake WiFi networks)           ║", WHITE)
-        cprint("║  2) flood    - AP Network Flood Attack                ║", LIGHT_CYAN)
+        cprint("║  2) flood    - AP Network Flood Attack                 ║", LIGHT_CYAN)
         cprint("║               (Mass network broadcasting)              ║", WHITE)
-        cprint("║  3) scanner  - Live Network Scanner                   ║", LIGHT_CYAN)
+        cprint("║  3) scanner  - Live Network Scanner                    ║", LIGHT_CYAN)
         cprint("║               (Discover and monitor nearby networks)   ║", WHITE)
+        cprint("║  4) deauth   - Deauthentication Attack                 ║", LIGHT_CYAN)
+        cprint("║               (Disconnect WiFi clients from networks)  ║", WHITE)
         cprint("║                                                        ║", CYAN)
-        cprint("║  b) back     - Return to Main Menu                    ║", YELLOW)
-        cprint("║  e) exit     - Quit Application                       ║", RED)
+        cprint("║  b) back     - Return to Main Menu                     ║", YELLOW)
+        cprint("║  e) exit     - Quit Application                        ║", RED)
         cprint("║                                                        ║", CYAN)
         cprint("╚════════════════════════════════════════════════════════╝", CYAN)
         print()
@@ -449,6 +494,8 @@ class AttackSuite:
                 self.action_ap_network_flood()
             elif choice in ["3", "scanner", "scan"]:
                 self.action_network_scanner()
+            elif choice in ["4", "deauth"]:
+                self.action_deauth_attack()
             elif choice in ["b", "back"]:
                 break
             elif choice in ["e", "exit", "q", "quit"]:
@@ -473,8 +520,8 @@ class AttackSuite:
                     self.display_about()
                 elif choice in ["4", "exit", "e", "q", "quit"]:
                     clear()
-                    cprint("Thanks for using Attack Suite!", GREEN)
-                    cprint("Stay safe and hack responsibly! 👋\n", CYAN)
+                    cprint("Closing the app...", GREEN)
+                    cprint("Bye!\n", CYAN)
                     self.running = False
                 else:
                     wprint(f"Invalid option: {choice}")
