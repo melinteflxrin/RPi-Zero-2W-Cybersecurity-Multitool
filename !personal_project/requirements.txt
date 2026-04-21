@@ -25,3 +25,23 @@
 # sudo btmgmt connectable on          # enable connectable mode
 # sudo btmgmt discov on               # enable discoverable mode
 # sudo btmgmt pairable on             # enable pairing mode
+#
+# STEP 3: WiFi Adapter Setup (TP-Link Archer T2U PLUS RTL8821AU)
+# ================================================================
+# sudo apt-get update
+# sudo apt-get install -y git build-essential dkms bc linux-headers-generic
+#
+# cd ~
+# git clone https://github.com/morrownr/8821au-20210708.git
+# cd 8821au-20210708
+#
+# sudo ./install-driver.sh
+# When prompted "Do you want to edit the driver options file now?" → Type n
+#
+# sudo reboot
+#
+# Enable Monitor Mode on wlan1
+# iwconfig
+# sudo ip link set wlan1 down
+# sudo iw dev wlan1 set type monitor
+# sudo ip link set wlan1 up
