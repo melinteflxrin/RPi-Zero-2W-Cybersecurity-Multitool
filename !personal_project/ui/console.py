@@ -64,7 +64,7 @@ def eprint(text, end='\n'):
 
 def sprint(text, end='\n'):
     """Print success message in green."""
-    print(f"{GREEN}[✓] {text}{RESET}", end=end)
+    print(f"{GREEN}{text}{RESET}", end=end)
 
 
 def cinput(prompt, color=LIGHT_CYAN):

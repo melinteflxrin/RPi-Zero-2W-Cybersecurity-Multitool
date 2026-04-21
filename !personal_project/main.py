@@ -354,6 +354,43 @@ class AttackSuite:
         
         input(f"\n{CYAN}Press Enter to continue...{RESET}")
     
+    def action_essid_bruteforce(self):
+        """Execute ESSID Bruteforce WiFi attack."""
+        from wifi.essid_bruteforce import ESSIDBruteforcer
+        
+        clear()
+        print_banner("ESSID Bruteforce Attack", MAGENTA)
+        
+        cprint("This attack discovers hidden WiFi networks by probing for common SSID names.", YELLOW)
+        cprint("Listens for responses to reveal networks that don't broadcast their name.\n", YELLOW)
+        cprint("Requirements: WiFi adapter in monitor mode", CYAN)
+        cprint("WARNING: Educational purposes only! Use responsibly.\n", RED)
+        cprint("TIPS:", CYAN)
+        cprint("  • Run network scanner first to find target router BSSID", WHITE)
+        cprint("  • Wordlist mode uses 75+ common network names\n", WHITE)
+        
+        try:
+            # Get WiFi interface from user
+            interface = cinput("Enter WiFi interface name (e.g., wlan1)", LIGHT_CYAN) or "wlan1mon"
+            
+            iprint(f"Using interface: {interface}")
+            
+            # Create and run bruteforcer
+            bruteforcer = ESSIDBruteforcer(interface)
+            bruteforcer.run_interactive()
+            
+            sprint("ESSID bruteforce module completed!")
+            
+        except KeyboardInterrupt:
+            wprint("\nAttack stopped by user")
+        except ImportError as e:
+            eprint(f"Module import error: {e}")
+            eprint("Make sure WiFi module is properly installed")
+        except Exception as e:
+            eprint(f"Error during attack: {e}")
+        
+        input(f"\n{CYAN}Press Enter to continue...{RESET}")
+    
     def display_main_menu(self):
         """Display the main category menu."""
         clear()
@@ -472,6 +509,8 @@ class AttackSuite:
         cprint("║               (Discover and monitor nearby networks)   ║", WHITE)
         cprint("║  4) deauth   - Deauthentication Attack                 ║", LIGHT_CYAN)
         cprint("║               (Disconnect WiFi clients from networks)  ║", WHITE)
+        cprint("║  5) bruteforce- ESSID Bruteforce Attack                ║", LIGHT_CYAN)
+        cprint("║               (Discover hidden networks)               ║", WHITE)
         cprint("║                                                        ║", CYAN)
         cprint("║  b) back     - Return to Main Menu                     ║", YELLOW)
         cprint("║  e) exit     - Quit Application                        ║", RED)
@@ -496,6 +535,8 @@ class AttackSuite:
                 self.action_network_scanner()
             elif choice in ["4", "deauth"]:
                 self.action_deauth_attack()
+            elif choice in ["5", "bruteforce", "essid"]:
+                self.action_essid_bruteforce()
             elif choice in ["b", "back"]:
                 break
             elif choice in ["e", "exit", "q", "quit"]:

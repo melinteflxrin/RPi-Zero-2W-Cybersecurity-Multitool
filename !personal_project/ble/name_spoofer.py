@@ -284,8 +284,8 @@ def run_interactive():
     """Run NameSpoof in interactive mode."""
     print("\n")
     print("╔════════════════════════════════════════╗")
-    print("║       NameSpoof Adapter Attack        ║")
-    print("║   (Bluetooth Name Rotation Attack)    ║")
+    print("║       NameSpoof Adapter Attack         ║")
+    print("║   (Bluetooth Name Rotation Attack)     ║")
     print("╚════════════════════════════════════════╝")
     print()
     
