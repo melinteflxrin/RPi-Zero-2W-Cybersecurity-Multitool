@@ -219,6 +219,34 @@ class AttackSuite:
         
         input(f"\n{CYAN}Press Enter to continue...{RESET}")
     
+    def action_device_scanner(self):
+        """Execute BLE Device Scanner reconnaissance tool."""
+        from ble.device_scanner import BLEDeviceScanner
+        
+        clear()
+        print_banner("BLE Device Scanner", MAGENTA)
+        
+        cprint("This tool scans and displays all nearby Bluetooth Low Energy devices in real-time.", YELLOW)
+        cprint("Shows device details: MAC address, signal strength, and device names.\n", YELLOW)
+        cprint("WARNING: Educational purposes only! Use responsibly.\n", RED)
+        
+        try:
+            # Create scanner
+            scanner = BLEDeviceScanner()
+            scanner.run()
+            
+            sprint("BLE device scanner completed!")
+            
+        except KeyboardInterrupt:
+            wprint("\nScan stopped by user")
+        except ImportError as e:
+            eprint(f"Module import error: {e}")
+            eprint("Make sure BLE module is properly installed")
+        except Exception as e:
+            eprint(f"Error during scanning: {e}")
+        
+        input(f"\n{CYAN}Press Enter to continue...{RESET}")
+    
     def action_beacon_broadcast(self):
         """Execute Beacon Broadcast WiFi attack."""
         from wifi.beacon_broadcast import BeaconBroadcaster
@@ -464,6 +492,8 @@ class AttackSuite:
         cprint("║               (Spam Android devices)                   ║", WHITE)
         cprint("║  4) namespoof- NameSpoof Adapter Spoofing              ║", LIGHT_CYAN)
         cprint("║               (Rotate adapter names)                   ║", WHITE)
+        cprint("║  5) scanner  - BLE Device Scanner                      ║", LIGHT_CYAN)
+        cprint("║               (Discover nearby BLE devices)            ║", WHITE)
         cprint("║                                                        ║", CYAN)
         cprint("║  b) back     - Return to Main Menu                     ║", YELLOW)
         cprint("║  e) exit     - Quit Application                        ║", RED)
@@ -522,6 +552,8 @@ class AttackSuite:
                 self.action_android_spam()
             elif choice in ["4", "namespoof", "spoof"]:
                 self.action_name_spoof()
+            elif choice in ["5", "scanner", "scan"]:
+                self.action_device_scanner()
             elif choice in ["b", "back"]:
                 break
             elif choice in ["e", "exit", "q", "quit"]:
