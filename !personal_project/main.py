@@ -457,6 +457,249 @@ class AttackSuite:
         
         input(f"\n{CYAN}Press Enter to continue...{RESET}")
     
+    def action_http_dos_attack(self):
+        """Execute HTTP Denial of Service attack."""
+        from wifi.http_dos import HTTPDOSAttack
+        
+        clear()
+        print_banner("HTTP Denial of Service Attack", MAGENTA)
+        
+        cprint("This tool floods a target server with HTTP requests to exhaust resources.", YELLOW)
+        cprint("It can render web services unavailable or slow them significantly.\n", YELLOW)
+        cprint("WARNING: Educational purposes only! Use responsibly.", RED)
+        cprint("WARNING: Only test on systems you own or have permission to test!\n", RED)
+        cprint("TIPS:", CYAN)
+        cprint("  • Threads: Higher = faster flooding, lower = more stealthy (50-500)", WHITE)
+        cprint("  • Requests: Total HTTP requests to send (100-100000)", WHITE)
+        cprint("  • Uses random user agents to evade simple filtering", WHITE)
+        cprint("  • Great for load testing and stress testing servers\n", WHITE)
+        
+        try:
+            # Create and run attack
+            attack = HTTPDOSAttack()
+            attack.run_interactive()
+            
+            sprint("HTTP DOS attack module completed!")
+            
+        except KeyboardInterrupt:
+            wprint("\nAttack stopped by user")
+        except ImportError as e:
+            eprint(f"Module import error: {e}")
+            eprint("Make sure WiFi HTTP DOS module is properly installed")
+        except Exception as e:
+            eprint(f"Error during attack: {e}")
+        
+        input(f"\n{CYAN}Press Enter to continue...{RESET}")
+    
+    def action_facebook_phishing(self):
+        """Execute Facebook phishing server."""
+        from phishing.facebook_phish import FacebookPhishing
+        
+        clear()
+        print_banner("Facebook Phishing Server", MAGENTA)
+        
+        cprint("This tool hosts a fake Facebook login page to capture credentials.", YELLOW)
+        cprint("It is for educational purposes and authorized security testing only.\n", YELLOW)
+        cprint("WARNING: Unauthorized phishing is illegal. Use only with permission!\n", RED)
+        cprint("TIPS:", CYAN)
+        cprint("  • Credentials are logged to a file with timestamps", WHITE)
+        cprint("  • Server runs on localhost - use SSH tunneling to access from remote", WHITE)
+        cprint("  • All captured attempts are displayed in real-time", WHITE)
+        cprint("  • For safety, this only works on localhost (not accessible externally)\n", WHITE)
+        
+        try:
+            # Get port from user
+            port_input = cinput("Enter port [8000]: ")
+            port = int(port_input) if port_input else 8000
+            
+            # Validate port
+            if not (1 <= port <= 65535):
+                eprint("Invalid port number")
+                input(f"\n{CYAN}Press Enter to continue...{RESET}")
+                return
+            
+            # Create and run phishing server
+            phishing = FacebookPhishing(port=port)
+            phishing.run_interactive()
+            
+            sprint("Phishing server module completed!")
+            
+        except KeyboardInterrupt:
+            wprint("\nServer stopped by user")
+        except ImportError as e:
+            eprint(f"Module import error: {e}")
+            eprint("Make sure phishing module is properly installed")
+        except Exception as e:
+            eprint(f"Error during phishing: {e}")
+        
+        input(f"\n{CYAN}Press Enter to continue...{RESET}")
+    
+    def action_google_phishing(self):
+        """Execute Google phishing server."""
+        from phishing.google_phish import GooglePhishing
+        
+        clear()
+        print_banner("Google Phishing Server", MAGENTA)
+        
+        cprint("This tool hosts a fake Google login page to capture credentials.", YELLOW)
+        cprint("It is for educational purposes and authorized security testing only.\n", YELLOW)
+        cprint("WARNING: Unauthorized phishing is illegal. Use only with permission!\n", RED)
+        cprint("TIPS:", CYAN)
+        cprint("  • Credentials are logged to a file with timestamps", WHITE)
+        cprint("  • Server supports both localhost (SSH tunnel) and Cloudflare Tunnel", WHITE)
+        cprint("  • All captured attempts are displayed in real-time", WHITE)
+        cprint("  • Google login page closely mimics the real authentication flow\n", WHITE)
+        
+        try:
+            # Get port from user
+            port_input = cinput("Enter port [8000]: ")
+            port = int(port_input) if port_input else 8000
+            
+            # Validate port
+            if not (1 <= port <= 65535):
+                eprint("Invalid port number")
+                input(f"\n{CYAN}Press Enter to continue...{RESET}")
+                return
+            
+            # Create and run phishing server
+            phishing = GooglePhishing(port=port)
+            phishing.run_interactive()
+            
+            sprint("Phishing server module completed!")
+            
+        except KeyboardInterrupt:
+            wprint("\nServer stopped by user")
+        except ImportError as e:
+            eprint(f"Module import error: {e}")
+            eprint("Make sure phishing module is properly installed")
+        except Exception as e:
+            eprint(f"Error during phishing: {e}")
+        
+        input(f"\n{CYAN}Press Enter to continue...{RESET}")
+    
+    def action_instagram_phishing(self):
+        """Execute Instagram phishing server."""
+        from phishing.instagram_phish import InstagramPhishing
+        
+        clear()
+        print_banner("Instagram Phishing Server", MAGENTA)
+        
+        cprint("This tool hosts a fake Instagram login page to capture credentials.", YELLOW)
+        cprint("It is for educational purposes and authorized security testing only.\n", YELLOW)
+        cprint("WARNING: Unauthorized phishing is illegal. Use only with permission!\n", RED)
+        cprint("TIPS:", CYAN)
+        cprint("  • Credentials are logged to a file with timestamps", WHITE)
+        cprint("  • Server supports both localhost (SSH tunnel) and Cloudflare Tunnel", WHITE)
+        cprint("  • All captured attempts are displayed in real-time", WHITE)
+        cprint("  • Instagram login page closely mimics the real authentication flow\n", WHITE)
+        
+        try:
+            # Get port from user
+            port_input = cinput("Enter port [8000]: ")
+            port = int(port_input) if port_input else 8000
+            
+            # Validate port
+            if not (1 <= port <= 65535):
+                eprint("Invalid port number")
+                input(f"\n{CYAN}Press Enter to continue...{RESET}")
+                return
+            
+            # Create and run phishing server
+            phishing = InstagramPhishing(port=port)
+            phishing.run_interactive()
+            
+            sprint("Phishing server module completed!")
+            
+        except KeyboardInterrupt:
+            wprint("\nServer stopped by user")
+        except ImportError as e:
+            eprint(f"Module import error: {e}")
+            eprint("Make sure phishing module is properly installed")
+        except Exception as e:
+            eprint(f"Error during phishing: {e}")
+        
+        input(f"\n{CYAN}Press Enter to continue...{RESET}")
+    
+    def display_phishing_menu(self):
+        """Display the Phishing submenu."""
+        clear()
+        
+        cprint("╔════════════════════════════════════════════════════════╗", CYAN)
+        cprint("║               PHISHING ATTACKS MENU                    ║", CYAN)
+        cprint("╠════════════════════════════════════════════════════════╣", CYAN)
+        cprint("║                                                        ║", CYAN)
+        cprint("║  1) facebook  - Facebook Login Phishing Page           ║", LIGHT_CYAN)
+        cprint("║                (Capture login credentials)             ║", WHITE)
+        cprint("║                                                        ║", CYAN)
+        cprint("║  2) google    - Google Login Phishing Page             ║", LIGHT_CYAN)
+        cprint("║                (Capture email & password)              ║", WHITE)
+        cprint("║                                                        ║", CYAN)
+        cprint("║  3) instagram - Instagram Login Phishing Page          ║", LIGHT_CYAN)
+        cprint("║                (Capture username & password)           ║", WHITE)
+        cprint("║                                                        ║", CYAN)
+        cprint("║  b) back      - Return to Main Menu                    ║", YELLOW)
+        cprint("║  e) exit      - Quit Application                       ║", RED)
+        cprint("║                                                        ║", CYAN)
+        cprint("╚════════════════════════════════════════════════════════╝", CYAN)
+        print()
+        
+        choice = cinput("Select attack", LIGHT_BLUE)
+        return choice
+    
+    def handle_phishing_menu(self):
+        """Handle Phishing submenu navigation."""
+        while self.running:
+            choice = self.display_phishing_menu()
+            choice = choice.lower().strip()
+            
+            if choice in ["1", "facebook"]:
+                self.action_facebook_phishing()
+            elif choice in ["2", "google"]:
+                self.action_google_phishing()
+            elif choice in ["3", "instagram"]:
+                self.action_instagram_phishing()
+            elif choice in ["b", "back"]:
+                break
+            elif choice in ["e", "exit", "q", "quit"]:
+                self.running = False
+                break
+            else:
+                wprint(f"Invalid option: {choice}")
+                time.sleep(1)
+    
+    def action_l2cap_dos_attack(self):
+        """Execute L2CAP Denial of Service attack."""
+        from bt.l2cap_dos_attack import L2CAPDOSAttack
+        
+        clear()
+        print_banner("L2CAP Denial of Service Attack", MAGENTA)
+        
+        cprint("This attack performs L2CAP ping flooding against target Bluetooth devices.", YELLOW)
+        cprint("It can potentially disrupt or deny service to target devices.\n", YELLOW)
+        cprint("WARNING: Educational purposes only! Use responsibly.\n", RED)
+        cprint("TIPS:", CYAN)
+        cprint("  • Requires target device MAC address (find with BLE Device Scanner)", WHITE)
+        cprint("  • Uses multiple adapters for increased flooding capability", WHITE)
+        cprint("  • Packet size affects attack intensity (larger = more bandwidth)\n", WHITE)
+        
+        try:
+            # Get adapters from user
+            adapters = self.get_adapter_list()
+            
+            # Create and run attack
+            attack = L2CAPDOSAttack(adapters)
+            attack.run_interactive()
+            
+        except KeyboardInterrupt:
+            wprint("\nAttack stopped by user")
+        except ImportError as e:
+            eprint(f"Module import error: {e}")
+            eprint("Make sure BT L2CAP DOS module is properly installed")
+        except Exception as e:
+            eprint(f"Error during attack: {e}")
+        
+        input(f"\n{CYAN}Press Enter to continue...{RESET}")
+    
     def display_main_menu(self):
         """Display the main category menu."""
         clear()
@@ -465,10 +708,12 @@ class AttackSuite:
         cprint("║                    MAIN MENU                           ║", CYAN)
         cprint("╠════════════════════════════════════════════════════════╣", CYAN)
         cprint("║                                                        ║", CYAN)
-        cprint("║  1) BLE Attacks  - Bluetooth Low Energy Tools          ║", CYAN)
-        cprint("║  2) WiFi Attacks - WiFi Network Spoofing Tools         ║", CYAN)
-        cprint("║  3) About        - Project Information                 ║", CYAN)
-        cprint("║  4) Exit         - Quit Application                    ║", CYAN)
+        cprint("║  1) BLE Attacks      - Bluetooth Low Energy Tools      ║", CYAN)
+        cprint("║  2) Bluetooth Attacks- Bluetooth Classic Tools         ║", CYAN)
+        cprint("║  3) WiFi Attacks     - WiFi Network Spoofing Tools     ║", CYAN)
+        cprint("║  4) Phishing         - Social Engineering Tools        ║", CYAN)
+        cprint("║  5) About            - Project Information             ║", CYAN)
+        cprint("║  6) Exit             - Quit Application                ║", CYAN)
         cprint("║                                                        ║", CYAN)
         cprint("╚════════════════════════════════════════════════════════╝", CYAN)
         print()
@@ -563,6 +808,43 @@ class AttackSuite:
                 wprint(f"Invalid option: {choice}")
                 time.sleep(1)
     
+    def display_bluetooth_menu(self):
+        """Display the Bluetooth attacks submenu."""
+        clear()
+        
+        cprint("╔════════════════════════════════════════════════════════╗", CYAN)
+        cprint("║              BLUETOOTH ATTACKS MENU                    ║", CYAN)
+        cprint("╠════════════════════════════════════════════════════════╣", CYAN)
+        cprint("║                                                        ║", CYAN)
+        cprint("║  1) l2cap_dos- L2CAP Denial of Service Attack          ║", LIGHT_CYAN)
+        cprint("║               (Flood target with L2CAP echo requests)  ║", WHITE)
+        cprint("║                                                        ║", CYAN)
+        cprint("║  b) back     - Return to Main Menu                     ║", YELLOW)
+        cprint("║  e) exit     - Quit Application                        ║", RED)
+        cprint("║                                                        ║", CYAN)
+        cprint("╚════════════════════════════════════════════════════════╝", CYAN)
+        print()
+        
+        choice = cinput("Select attack", LIGHT_BLUE)
+        return choice
+    
+    def handle_bluetooth_menu(self):
+        """Handle Bluetooth submenu navigation."""
+        while self.running:
+            choice = self.display_bluetooth_menu()
+            choice = choice.lower().strip()
+            
+            if choice in ["1", "l2cap_dos", "l2cap"]:
+                self.action_l2cap_dos_attack()
+            elif choice in ["b", "back"]:
+                break
+            elif choice in ["e", "exit", "q", "quit"]:
+                self.running = False
+                break
+            else:
+                wprint(f"Invalid option: {choice}")
+                time.sleep(1)
+    
     def display_wifi_menu(self):
         """Display the WiFi attacks submenu."""
         clear()
@@ -583,6 +865,8 @@ class AttackSuite:
         cprint("║               (Discover hidden networks)               ║", WHITE)
         cprint("║  6) capture  - Packet Capture Tool                     ║", LIGHT_CYAN)
         cprint("║               (Record WiFi traffic to .cap files)      ║", WHITE)
+        cprint("║  7) http_dos - HTTP Denial of Service                  ║", LIGHT_CYAN)
+        cprint("║               (Flood target server with requests)      ║", WHITE)
         cprint("║                                                        ║", CYAN)
         cprint("║  b) back     - Return to Main Menu                     ║", YELLOW)
         cprint("║  e) exit     - Quit Application                        ║", RED)
@@ -611,6 +895,8 @@ class AttackSuite:
                 self.action_essid_bruteforce()
             elif choice in ["6", "capture", "wificap"]:
                 self.action_packet_capture()
+            elif choice in ["7", "http_dos", "httpdos"]:
+                self.action_http_dos_attack()
             elif choice in ["b", "back"]:
                 break
             elif choice in ["e", "exit", "q", "quit"]:
@@ -627,13 +913,17 @@ class AttackSuite:
                 choice = self.display_main_menu()
                 choice = choice.lower().strip()
                 
-                if choice in ["1", "ble", "bluetooth"]:
+                if choice in ["1", "ble"]:
                     self.handle_ble_menu()
-                elif choice in ["2", "wifi"]:
+                elif choice in ["2", "bluetooth", "bt"]:
+                    self.handle_bluetooth_menu()
+                elif choice in ["3", "wifi"]:
                     self.handle_wifi_menu()
-                elif choice in ["3", "about", "info"]:
+                elif choice in ["4", "phishing"]:
+                    self.handle_phishing_menu()
+                elif choice in ["5", "about", "info"]:
                     self.display_about()
-                elif choice in ["4", "exit", "e", "q", "quit"]:
+                elif choice in ["6", "exit", "e", "q", "quit"]:
                     clear()
                     cprint("Closing the app...", GREEN)
                     cprint("Bye!\n", CYAN)
