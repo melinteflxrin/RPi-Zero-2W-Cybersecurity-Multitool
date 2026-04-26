@@ -491,6 +491,40 @@ class AttackSuite:
         
         input(f"\n{CYAN}Press Enter to continue...{RESET}")
     
+    def action_handshake_capture(self):
+        """Execute WiFi Handshake Capture tool."""
+        from handshake_capture import HandshakeCapture
+        
+        clear()
+        print_banner("WiFi Handshake Capture Tool", MAGENTA)
+        
+        cprint("This tool passively captures WPA/WPA2 4-way handshakes from WiFi networks.", YELLOW)
+        cprint("It will convert the capture to .hccapx format for cracking.\n", YELLOW)
+        cprint("IMPORTANT: This is PASSIVE - no deauth frames are sent.", GREEN)
+        cprint("Handshakes are captured when devices naturally connect to the network.\n", GREEN)
+        cprint("WARNING: Only capture from networks you own or have permission to test!", RED)
+        cprint("NOTE: Make sure your WiFi adapter is already in monitor mode!\n", YELLOW)
+        
+        try:
+            # Get monitor interface from user
+            monitor_iface = cinput("Monitor mode interface (e.g., wlan1mon)", LIGHT_BLUE) or "wlan1mon"
+            
+            # Create and run capture
+            capture = HandshakeCapture(monitor_iface)
+            capture.run_interactive()
+            
+            sprint("Handshake capture tool completed!")
+            
+        except KeyboardInterrupt:
+            wprint("\nCapture stopped by user")
+        except ImportError as e:
+            eprint(f"Module import error: {e}")
+            eprint("Make sure handshake_capture module is properly installed")
+        except Exception as e:
+            eprint(f"Error during capture: {e}")
+        
+        input(f"\n{CYAN}Press Enter to continue...{RESET}")
+    
     def action_facebook_phishing(self):
         """Execute Facebook phishing server."""
         from phishing.facebook_phish import FacebookPhishing
@@ -577,49 +611,6 @@ class AttackSuite:
         
         input(f"\n{CYAN}Press Enter to continue...{RESET}")
     
-    def action_instagram_phishing(self):
-        """Execute Instagram phishing server."""
-        from phishing.instagram_phish import InstagramPhishing
-        
-        clear()
-        print_banner("Instagram Phishing Server", MAGENTA)
-        
-        cprint("This tool hosts a fake Instagram login page to capture credentials.", YELLOW)
-        cprint("It is for educational purposes and authorized security testing only.\n", YELLOW)
-        cprint("WARNING: Unauthorized phishing is illegal. Use only with permission!\n", RED)
-        cprint("TIPS:", CYAN)
-        cprint("  • Credentials are logged to a file with timestamps", WHITE)
-        cprint("  • Server supports both localhost (SSH tunnel) and Cloudflare Tunnel", WHITE)
-        cprint("  • All captured attempts are displayed in real-time", WHITE)
-        cprint("  • Instagram login page closely mimics the real authentication flow\n", WHITE)
-        
-        try:
-            # Get port from user
-            port_input = cinput("Enter port [8000]: ")
-            port = int(port_input) if port_input else 8000
-            
-            # Validate port
-            if not (1 <= port <= 65535):
-                eprint("Invalid port number")
-                input(f"\n{CYAN}Press Enter to continue...{RESET}")
-                return
-            
-            # Create and run phishing server
-            phishing = InstagramPhishing(port=port)
-            phishing.run_interactive()
-            
-            sprint("Phishing server module completed!")
-            
-        except KeyboardInterrupt:
-            wprint("\nServer stopped by user")
-        except ImportError as e:
-            eprint(f"Module import error: {e}")
-            eprint("Make sure phishing module is properly installed")
-        except Exception as e:
-            eprint(f"Error during phishing: {e}")
-        
-        input(f"\n{CYAN}Press Enter to continue...{RESET}")
-    
     def display_phishing_menu(self):
         """Display the Phishing submenu."""
         clear()
@@ -633,9 +624,6 @@ class AttackSuite:
         cprint("║                                                        ║", CYAN)
         cprint("║  2) google    - Google Login Phishing Page             ║", LIGHT_CYAN)
         cprint("║                (Capture email & password)              ║", WHITE)
-        cprint("║                                                        ║", CYAN)
-        cprint("║  3) instagram - Instagram Login Phishing Page          ║", LIGHT_CYAN)
-        cprint("║                (Capture username & password)           ║", WHITE)
         cprint("║                                                        ║", CYAN)
         cprint("║  b) back      - Return to Main Menu                    ║", YELLOW)
         cprint("║  e) exit      - Quit Application                       ║", RED)
@@ -656,8 +644,6 @@ class AttackSuite:
                 self.action_facebook_phishing()
             elif choice in ["2", "google"]:
                 self.action_google_phishing()
-            elif choice in ["3", "instagram"]:
-                self.action_instagram_phishing()
             elif choice in ["b", "back"]:
                 break
             elif choice in ["e", "exit", "q", "quit"]:
@@ -867,6 +853,8 @@ class AttackSuite:
         cprint("║               (Record WiFi traffic to .cap files)      ║", WHITE)
         cprint("║  7) http_dos - HTTP Denial of Service                  ║", LIGHT_CYAN)
         cprint("║               (Flood target server with requests)      ║", WHITE)
+        cprint("║  8) handshake- Handshake Capture Tool                  ║", LIGHT_CYAN)
+        cprint("║               (Passively capture WiFi 4-way handshake) ║", WHITE)
         cprint("║                                                        ║", CYAN)
         cprint("║  b) back     - Return to Main Menu                     ║", YELLOW)
         cprint("║  e) exit     - Quit Application                        ║", RED)
@@ -897,6 +885,8 @@ class AttackSuite:
                 self.action_packet_capture()
             elif choice in ["7", "http_dos", "httpdos"]:
                 self.action_http_dos_attack()
+            elif choice in ["8", "handshake"]:
+                self.action_handshake_capture()
             elif choice in ["b", "back"]:
                 break
             elif choice in ["e", "exit", "q", "quit"]:
