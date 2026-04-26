@@ -12,6 +12,8 @@ first seen/last seen timestamps, and persistent device tracking.
 import asyncio
 import math
 import time
+import os
+import yaml
 from datetime import datetime
 from ui import (cprint, iprint, wprint, eprint, sprint, cinput, 
                    RED, GREEN, CYAN, YELLOW, MAGENTA, WHITE, 
@@ -37,9 +39,63 @@ class BLEDeviceScanner:
         self.company_ids = self._load_company_ids()
     
     def _load_company_ids(self):
-        """Load company identifiers for manufacturer data."""
-        # Basic company ID mapping (can be extended)
-        company_ids = {
+        """Load company identifiers from YAML file."""
+        company_ids = {}
+        
+        # Try to load from company_identifiers.yaml file
+        file_path = os.path.join(os.path.dirname(__file__), "company_identifiers.yaml")
+        
+        if os.path.exists(file_path):
+            try:
+                with open(file_path, 'r', encoding='utf-8') as f:
+                    # Read file and sanitize problematic characters
+                    content = f.read()
+                    # Try to load the YAML
+                    try:
+                        data = yaml.safe_load(content)
+                    except yaml.YAMLError as e:
+                        # If YAML fails due to encoding, try to load line by line
+                        wprint(f"Warning: YAML parsing issue, loading manually...")
+                        for line in content.split('\n'):
+                            line = line.strip()
+                            if line.startswith('- value:'):
+                                hex_str = line.replace('- value:', '').strip()
+                                try:
+                                    company_id = int(hex_str, 16)
+                                    company_ids[company_id] = f"ID:{hex_str}"
+                                except ValueError:
+                                    pass
+                            elif line.startswith('name:') and company_ids:
+                                name = line.replace("name: '", "").replace("'", "").replace('name: "', '').replace('"', '')
+                                if name:
+                                    # Update last added ID with the name
+                                    last_id = list(company_ids.keys())[-1] if company_ids else None
+                                    if last_id:
+                                        company_ids[last_id] = name
+                        return company_ids if company_ids else self._get_fallback_ids()
+                    
+                    if data and 'company_identifiers' in data:
+                        for entry in data['company_identifiers']:
+                            try:
+                                hex_id = entry.get('value', '')
+                                name = entry.get('name', '')
+                                
+                                if hex_id and name:
+                                    company_id = int(hex_id, 16)
+                                    company_ids[company_id] = name
+                            except (ValueError, AttributeError, TypeError):
+                                continue
+                    
+                    if company_ids:
+                        return company_ids
+            except Exception as e:
+                wprint(f"Warning: Could not load company_identifiers.yaml: {e}")
+        
+        return self._get_fallback_ids()
+    
+    def _get_fallback_ids(self):
+        """Return fallback hardcoded company IDs."""
+        return {
             0x004C: "Apple",
             0x006B: "Google",
             0x0059: "Nordic",
@@ -58,7 +114,6 @@ class BLEDeviceScanner:
             0x005B: "RealTek",
             0x005F: "Qualcomm",
         }
-        return company_ids
     
     def _get_company_name(self, company_id):
         """Get company name from manufacturer ID."""
@@ -113,8 +168,8 @@ class BLEDeviceScanner:
                 print()
                 
                 # Header
-                cprint(f"{'#':<3} {'MAC Address':<18} {'Name':<20} {'RSSI':<8} {'TX Pwr':<8} {'Dist(m)':<8} {'Company':<15} {'First Seen':<12} {'Last Seen':<12}", CYAN)
-                cprint("─" * 130, CYAN)
+                cprint(f"{'#':<3} {'MAC Address':<18} {'Name':<20} {'RSSI':<8} {'TX Pwr':<8} {'Dist(m)':<8} {'Company':<25} {'First Seen':<12} {'Last Seen':<12}", CYAN)
+                cprint("─" * 140, CYAN)
                 
                 # Rows
                 for idx, (mac, info) in enumerate(sorted(self.devices.items()), 1):
@@ -126,7 +181,11 @@ class BLEDeviceScanner:
                     distance = self._calculate_distance(info['tx_power'], info['rssi'])
                     dist_str = f"{distance:.1f}" if distance else "N/A"
                     
+                    # Truncate company name to 23 chars with ellipsis
                     company = info['company'] if info['company'] else "Unknown"
+                    if len(company) > 23:
+                        company = company[:20] + "..."
+                    
                     first_seen = info['first_seen'].strftime("%H:%M:%S") if info['first_seen'] else "N/A"
                     last_seen = info['last_seen'].strftime("%H:%M:%S") if info['last_seen'] else "N/A"
                     
@@ -138,7 +197,7 @@ class BLEDeviceScanner:
                     else:
                         color = WHITE  # Weak signal
                     
-                    cprint(f"{idx:<3} {mac:<18} {name:<20} {rssi_str:<8} {tx_str:<8} {dist_str:<8} {company:<15} {first_seen:<12} {last_seen:<12}", color)
+                    cprint(f"{idx:<3} {mac:<18} {name:<20} {rssi_str:<8} {tx_str:<8} {dist_str:<8} {company:<25} {first_seen:<12} {last_seen:<12}", color)
                 
                 print()
                 cprint(f"Total devices: {len(self.devices)}", CYAN)
