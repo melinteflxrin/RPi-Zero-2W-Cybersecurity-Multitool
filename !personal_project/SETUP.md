@@ -11,6 +11,7 @@ sudo apt-get install -y python3-bluez python3-dbus libbluetooth-dev
 sudo apt-get install -y aircrack-ng mdk4 wifite
 sudo apt-get install -y dnsmasq hostapd iptables
 sudo apt install -y python3-bleak python3-yaml
+sudo apt-get install -y arp-scan hping3
 ```
 
 ## STEP 2: Initialize Bluetooth Adapter

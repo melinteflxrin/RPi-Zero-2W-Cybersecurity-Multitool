@@ -491,37 +491,43 @@ class AttackSuite:
         
         input(f"\n{CYAN}Press Enter to continue...{RESET}")
     
-    def action_handshake_capture(self):
-        """Execute WiFi Handshake Capture tool."""
-        from handshake_capture import HandshakeCapture
+    
+    def action_localdos(self):
+        """Execute Local Network DoS attack."""
+        from wifi.localdos import localdos
         
         clear()
-        print_banner("WiFi Handshake Capture Tool", MAGENTA)
+        print_banner("Local Network DoS Attack", MAGENTA)
         
-        cprint("This tool passively captures WPA/WPA2 4-way handshakes from WiFi networks.", YELLOW)
-        cprint("It will convert the capture to .hccapx format for cracking.\n", YELLOW)
-        cprint("IMPORTANT: This is PASSIVE - no deauth frames are sent.", GREEN)
-        cprint("Handshakes are captured when devices naturally connect to the network.\n", GREEN)
-        cprint("WARNING: Only capture from networks you own or have permission to test!", RED)
-        cprint("NOTE: Make sure your WiFi adapter is already in monitor mode!\n", YELLOW)
+        cprint("This tool floods devices on your local WiFi network with packets.", YELLOW)
+        cprint("It will disconnect the target from the internet temporarily.\n", YELLOW)
+        cprint("Requirements: arp-scan and hping3 installed", CYAN)
+        cprint("WARNING: Only test on networks/devices you own!\n", RED)
+        cprint("TIPS:", CYAN)
+        cprint("  • Run network scanner first to find target devices on WiFi", WHITE)
+        cprint("  • Get target IP from WiFi settings or use arp-scan", WHITE)
+        cprint("  • Target will lose internet during attack, recover when stopped\n", WHITE)
         
         try:
-            # Get monitor interface from user
-            monitor_iface = cinput("Monitor mode interface (e.g., wlan1mon)", LIGHT_BLUE) or "wlan1mon"
+            # Get WiFi interface from user
+            interface = cinput("Enter WiFi interface name (e.g., wlan0)", LIGHT_CYAN) or "wlan0"
             
-            # Create and run capture
-            capture = HandshakeCapture(monitor_iface)
-            capture.run_interactive()
+            iprint(f"Using interface: {interface}")
+            print()
             
-            sprint("Handshake capture tool completed!")
+            # Run the localdos attack
+            localdos(interface=interface)
+            
+            sprint("Local DoS attack session completed!")
             
         except KeyboardInterrupt:
-            wprint("\nCapture stopped by user")
+            wprint("\nAttack stopped by user")
         except ImportError as e:
             eprint(f"Module import error: {e}")
-            eprint("Make sure handshake_capture module is properly installed")
+            eprint("Make sure arp-scan and hping3 are installed:")
+            eprint("  sudo apt-get install arp-scan hping3")
         except Exception as e:
-            eprint(f"Error during capture: {e}")
+            eprint(f"Error during attack: {e}")
         
         input(f"\n{CYAN}Press Enter to continue...{RESET}")
     
@@ -853,8 +859,8 @@ class AttackSuite:
         cprint("║               (Record WiFi traffic to .cap files)      ║", WHITE)
         cprint("║  7) http_dos - HTTP Denial of Service                  ║", LIGHT_CYAN)
         cprint("║               (Flood target server with requests)      ║", WHITE)
-        cprint("║  8) handshake- Handshake Capture Tool                  ║", LIGHT_CYAN)
-        cprint("║               (Passively capture WiFi 4-way handshake) ║", WHITE)
+        cprint("║  8) localdos - Local Network DoS Attack                ║", LIGHT_CYAN)
+        cprint("║               (Flood target device on your WiFi)       ║", WHITE)
         cprint("║                                                        ║", CYAN)
         cprint("║  b) back     - Return to Main Menu                     ║", YELLOW)
         cprint("║  e) exit     - Quit Application                        ║", RED)
@@ -885,8 +891,8 @@ class AttackSuite:
                 self.action_packet_capture()
             elif choice in ["7", "http_dos", "httpdos"]:
                 self.action_http_dos_attack()
-            elif choice in ["8", "handshake"]:
-                self.action_handshake_capture()
+            elif choice in ["8", "localdos", "local_dos", "dos"]:
+                self.action_localdos()
             elif choice in ["b", "back"]:
                 break
             elif choice in ["e", "exit", "q", "quit"]:
